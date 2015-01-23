@@ -3,7 +3,7 @@
 ext {
     project_group = 'com.github.blacklocus'
     project_version = '0.0.1-SNAPSHOT'
-    project_jdk = '1.6'
+    project_jdk = '1.7'
     project_pom = {
         name 'rds-echo'
         description 'Tooling for automated RDS restorations from snapshots'
@@ -94,16 +94,6 @@ apply plugin: 'idea'
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Dependencies
 
-configurations {
-    provided
-}
-
-sourceSets {
-    main {
-        compileClasspath += configurations.provided
-    }
-}
-
 repositories {
     mavenCentral()
 }
@@ -115,8 +105,8 @@ dependencies {
     compile 'org.bitbucket.cowwoc:preconditions:1.12'
     compile 'com.sun.jersey:jersey-core:1.18.3'
     compile 'org.slf4j:slf4j-api:1.7.10'
-    provided 'ch.qos.logback:logback-core:1.1.2'
-    provided 'ch.qos.logback:logback-classic:1.1.2'
+    compile 'ch.qos.logback:logback-core:1.1.2'
+    compile 'ch.qos.logback:logback-classic:1.1.2'
 
     testCompile 'org.testng:testng:6.8.17'
 
