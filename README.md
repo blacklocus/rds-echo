@@ -2,8 +2,8 @@ RDS Echo
 ========
 A tool to simplify automated restore-from-snapshot operations in Amazon RDS.
 
-To get a snapshot into a usable state must happen in at least two distinct stages: the initial restore request, and
-instance modification once it is available.
+To get a snapshot into a usable state must happen in at least two distinct stages: the **initial restore request**, and
+**instance modification** once it is available.
 
 
 ### Why? ###
