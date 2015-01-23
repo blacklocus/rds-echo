@@ -3,6 +3,7 @@ package com.blacklocus.rds;
 import com.amazonaws.services.rds.AmazonRDS;
 import com.amazonaws.services.rds.AmazonRDSClient;
 import com.amazonaws.services.rds.model.DBInstance;
+import com.amazonaws.services.rds.model.Endpoint;
 import com.amazonaws.services.route53.model.HostedZone;
 import com.amazonaws.services.route53.model.ResourceRecord;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
@@ -39,7 +40,7 @@ public class DbEchoPromote implements Callable<Void> {
         LOG.info("Locating last echo instance with tag {}", tagEchoManaged);
         Optional<DBInstance> newestInstanceOpt = echo.lastEchoInstance();
         if (!newestInstanceOpt.isPresent()) {
-            LOG.error("  There is no echo instance tagged with {}. Cannot promote nothing to CNAME {} . Exiting.",
+            LOG.error("  There is no echo instance tagged with {}. Cannot promote nothing to CNAME {}. Exiting.",
                     tagEchoManaged, cfg.cname());
             return null;
         }
@@ -55,7 +56,14 @@ public class DbEchoPromote implements Callable<Void> {
         LOG.info("  Found CNAME {} with current value {}", resourceRecordSet.getName(), resourceRecord.getValue());
 
         if (newestInstanceOpt.isPresent()) {
-            String echoInstanceAddr = newestInstanceOpt.get().getEndpoint().getAddress();
+            DBInstance instance = newestInstanceOpt.get();
+            Endpoint endpoint = instance.getEndpoint();
+            if (null == endpoint) {
+                LOG.info("Echo DB instance {} (id: {}) has no address. Is it still initializing?",
+                        tagEchoManaged, instance.getDBInstanceIdentifier());
+                return null;
+            }
+            String echoInstanceAddr = endpoint.getAddress();
             if (resourceRecord.getValue().equals(echoInstanceAddr)) {
                 LOG.info("  Echo DB instance {} ({}) lines up with CNAME {}.",
                         tagEchoManaged, echoInstanceAddr, resourceRecordSet.getName());
