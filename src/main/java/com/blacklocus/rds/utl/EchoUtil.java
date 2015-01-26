@@ -13,9 +13,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class RdsEchoUtil {
+public class EchoUtil {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RdsEchoUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EchoUtil.class);
 
     final RdsFind rdsFind = new RdsFind();
 

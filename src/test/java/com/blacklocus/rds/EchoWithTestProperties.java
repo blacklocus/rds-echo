@@ -34,6 +34,13 @@ public class EchoWithTestProperties {
         }
     }
 
+    public static class Reboot {
+        public static void main(String[] args) throws Exception {
+            bootstrapFromPropertiesFile();
+            EchoReboot.main(args);
+        }
+    }
+
     public static class Promote {
         public static void main(String[] args) throws Exception {
             bootstrapFromPropertiesFile();

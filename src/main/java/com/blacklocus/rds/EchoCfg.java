@@ -32,7 +32,7 @@ public class EchoCfg {
     public static final String PROP_MOD_DB_PARAMETER_GROUP_NAME = PREFIX + "mod.dbParameterGroupName";
     public static final String PROP_MOD_DB_SECURITY_GROUPS = PREFIX + "mod.dbSecurityGroups";
     public static final String PROP_MOD_BACKUP_RETENTION_PERIOD = PREFIX + "mod.backupRetentionPeriod";
-    public static final String PROP_MOD_APPLY_IMMEDIATELY = "mod.applyImmediately";
+    public static final String PROP_MOD_APPLY_IMMEDIATELY = PREFIX + "mod.applyImmediately";
 
     final String[] required = new String[]{
             PROP_INTERACTIVE,

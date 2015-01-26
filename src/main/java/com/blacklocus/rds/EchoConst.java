@@ -5,12 +5,12 @@ public class EchoConst {
     /**
      * Tag that marks an instance as Echo managed.
      */
-    public static final String TAG_ECHO_MANAGED_FMT = "bl:echo:%s:managed";
+    public static final String TAG_ECHO_MANAGED_FMT = "rdsecho:%s:managed";
 
     /**
      * Tag that marks the current Echo stage of an instance.
      */
-    public static final String TAG_ECHO_STAGE_FMT = "bl:echo:%s:stage";
+    public static final String TAG_ECHO_STAGE_FMT = "rdsecho:%s:stage";
 
     /**
      * The stage that marks an instance as having just been created by means of the RDS restore-from-snapshot API.
@@ -24,6 +24,12 @@ public class EchoConst {
      * "modify" stage require a reboot to take effect.
      */
     public static final String STAGE_MODIFIED = "modified";
+
+    /**
+     * The stage that marks an instance having just been rebooted. All database parameters should have their full
+     * effects.
+     */
+    public static final String STAGE_REBOOTED = "rebooted";
 
     /**
      * The stage that marks an instance as having been rebooted and ready to be used with all necessary settings. The

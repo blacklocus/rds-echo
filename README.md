@@ -21,7 +21,7 @@ promote that instance to replace its former self, and then destroy the old insta
 This is accomplished through a series of stages, each of which is a command in this tool. Instances progress through the
 stages is tracked by AWS resource tags on the instances themselves.
 
-###
+
 
 
 ## Deployment ##

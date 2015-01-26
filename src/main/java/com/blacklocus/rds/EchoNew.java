@@ -7,7 +7,7 @@ import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.DBSnapshot;
 import com.amazonaws.services.rds.model.RestoreDBInstanceFromDBSnapshotRequest;
 import com.amazonaws.services.rds.model.Tag;
-import com.blacklocus.rds.utl.RdsEchoUtil;
+import com.blacklocus.rds.utl.EchoUtil;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -16,9 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
 
-/**
- *
- */
 public class EchoNew implements Callable<Boolean> {
 
     private static final Logger LOG = LoggerFactory.getLogger(EchoNew.class);
@@ -26,7 +23,7 @@ public class EchoNew implements Callable<Boolean> {
     final AmazonRDS rds = new AmazonRDSClient();
 
     final EchoCfg cfg = new EchoCfg();
-    final RdsEchoUtil echo = new RdsEchoUtil();
+    final EchoUtil echo = new EchoUtil();
 
     @Override
     public Boolean call() throws Exception {
@@ -100,7 +97,7 @@ public class EchoNew implements Callable<Boolean> {
 
         if (cfg.interactive()) {
             String format = "Proceed to create a new DB instance from this snapshot? Input %s to confirm.";
-            if (!RdsEchoUtil.prompt(newDbInstanceIdentifier, format, newDbInstanceIdentifier)) {
+            if (!EchoUtil.prompt(newDbInstanceIdentifier, format, newDbInstanceIdentifier)) {
                 LOG.info("User declined to proceed. Exiting.");
                 return false;
             }
