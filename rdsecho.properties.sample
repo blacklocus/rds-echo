@@ -1,0 +1,53 @@
+# RDS Echo
+
+# Whether or not the tool should be interactive. If false, all confirmation prompts are bypassed as if they were
+# confirmed
+rdsecho.interactive=true
+
+
+
+# General
+
+# Human-readable name, what you would usually say in conversation when talking about the database. An uninteresting
+# but effective name might simply be "development". This value will be incorporated RDS names.
+rdsecho.name=development
+
+# The Route53 CNAME which points at the currently active instance. Include the trailing '.' in the typical
+# fashion of DNS records.
+rdsecho.cname=dev.domain.com.
+
+# AWS regions with RDS which are
+#     us-east-1, us-west-1, us-west-2, us-gov-west-1, eu-west-1, eu-central-1,
+#     ap-northeast-1, ap-southeast-1, ap-southeast-2, sa-east-1
+rdsecho.region=us-east-1
+# Your AWS account number
+rdsecho.accountNumber=1234567890
+# The name of the instance whose snapshots we want to echo into a new instance using this tool. Typically, this
+# identifies snapshots of the production database, whose snapshots we want to regularly restore to staging, development,
+# and other such lower echelon environments.
+rdsecho.snapshot.dbInstanceIdentifier=production
+
+
+
+# Restore from snapshot API parameters
+# See http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/rds/model/RestoreDBInstanceFromDBSnapshotRequest.html
+
+rdsecho.new.engine=MySQL
+rdsecho.new.licenseModel=general-public-license
+rdsecho.new.dbInstanceClass=db.t1.micro
+rdsecho.new.multiAz=false
+rdsecho.new.storageType=gp2
+rdsecho.new.iops=0
+rdsecho.new.port=3306
+rdsecho.new.optionGroupName=default:mysql-5-6
+rdsecho.new.autoMinorVersionUpgrade=true
+
+
+
+# Modify instance API parameters
+# See http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/rds/model/ModifyDBInstanceRequest.html
+
+rdsecho.mod.dbParameterGroupName=default.mysql5.6
+rdsecho.mod.dbSecurityGroups=development,admin
+rdsecho.mod.backupRetentionPeriod=0
+rdsecho.mod.applyImmediately=true

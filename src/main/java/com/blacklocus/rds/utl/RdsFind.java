@@ -50,6 +50,16 @@ public class RdsFind {
         });
     }
 
+    public Optional<Tag> instanceTag(String instanceArn, Predicate<Tag> predicate) {
+        return Optional.fromNullable(Iterables.getFirst(instanceTags(instanceArn, predicate), null));
+    }
+
+    public Iterable<Tag> instanceTags(String instanceArn, Predicate<Tag> predicate) {
+        ListTagsForResourceResult result = rds.listTagsForResource(new ListTagsForResourceRequest()
+                .withResourceName(instanceArn));
+        return result.getTagList();
+    }
+
     public Iterable<DBSnapshot> snapshots(final String dbInstanceIdentifier, final Predicate<DBSnapshot> predicate) {
         return new PagingIterable<DBSnapshot>(new Supplier<Iterable<DBSnapshot>>() {
 
@@ -74,22 +84,27 @@ public class RdsFind {
         });
     }
 
-    public Predicate<DBInstance> instanceHasTagKey(final String region, final String accountNumber, final String tagKey) {
+    public Predicate<DBInstance> instanceHasTag(final String region, final String accountNumber,
+                                                final String tagKey, final String tagValue) {
         return new Predicate<DBInstance>() {
             @Override
             public boolean apply(DBInstance instance) {
-                String rdsInstanceArn = String.format("arn:aws:rds:%s:%s:db:%s", region, accountNumber, instance.getDBInstanceIdentifier());
+                String rdsInstanceArn = instanceArn(region, accountNumber, instance.getDBInstanceIdentifier());
                 ListTagsForResourceResult result = rds.listTagsForResource(new ListTagsForResourceRequest()
                         .withResourceName(rdsInstanceArn));
 
                 return Iterables.any(result.getTagList(), new Predicate<Tag>() {
                     @Override
                     public boolean apply(Tag tag) {
-                        return tagKey.equals(tag.getKey());
+                        return tagKey.equals(tag.getKey()) && tagValue.equals(tag.getValue());
                     }
                 });
             }
         };
+    }
+
+    public static String instanceArn(String region, String accountNumber, String dbInstanceIdentifier) {
+        return String.format("arn:aws:rds:%s:%s:db:%s", region, accountNumber, dbInstanceIdentifier);
     }
 
     public static Predicate<DBSnapshot> snapshotIsAvailable() {
@@ -97,6 +112,15 @@ public class RdsFind {
             @Override
             public boolean apply(DBSnapshot snapshot) {
                 return "available".equals(snapshot.getStatus());
+            }
+        };
+    }
+
+    public static Predicate<Tag> tagName(String name) {
+        return new Predicate<Tag>() {
+            @Override
+            public boolean apply(Tag tag) {
+                return tag.getKey().equals(name);
             }
         };
     }
@@ -119,6 +143,6 @@ public class RdsFind {
             }
         }
         return Optional.fromNullable(newest);
-
     }
+
 }

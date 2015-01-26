@@ -3,7 +3,31 @@ RDS Echo
 A tool to simplify automated restore-from-snapshot operations in Amazon RDS.
 
 To get a snapshot into a usable state must happen in at least two distinct stages: the **initial restore request**, and
-**instance modification** once it is available.
+**instance modification** once it is available. Then there's usually some form of **promotion** where you ask "Is
+everyone ready for me to swap out the old with the new instance?" and then update the CNAME to point at the fresh
+instance.
+
+
+## Get It ##
+
+TODO distribution
+
+
+
+## The Workflow ##
+RDS Echo fulfills this story: On regular occasion, restore the latest production snapshot to a new development instance,
+promote that instance to replace its former self, and then destroy the old instance.
+
+This is accomplished through a series of stages, each of which is a command in this tool. Instances progress through the
+stages is tracked by AWS resource tags on the instances themselves.
+
+###
+
+
+## Deployment ##
+
+TODO is there a deployable involved? How do users approve?
+
 
 
 ### Why? ###

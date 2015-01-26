@@ -7,7 +7,7 @@ import com.amazonaws.services.rds.model.Endpoint;
 import com.amazonaws.services.route53.model.HostedZone;
 import com.amazonaws.services.route53.model.ResourceRecord;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
-import com.blacklocus.rds.utl.DbEchoUtil;
+import com.blacklocus.rds.utl.RdsEchoUtil;
 import com.blacklocus.rds.utl.Route53Find;
 import com.google.common.base.Optional;
 import org.slf4j.Logger;
@@ -22,15 +22,15 @@ import static com.google.common.collect.Iterables.getOnlyElement;
 /**
  *
  */
-public class DbEchoPromote implements Callable<Void> {
+public class EchoPromote implements Callable<Void> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DbEchoPromote.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EchoPromote.class);
 
     final AmazonRDS rds = new AmazonRDSClient();
     final Route53Find route53Find = new Route53Find();
 
-    final DbEchoCfg cfg = new DbEchoCfg();
-    final DbEchoUtil echo = new DbEchoUtil();
+    final EchoCfg cfg = new EchoCfg();
+    final RdsEchoUtil echo = new RdsEchoUtil();
 
     @Override
     public Void call() throws Exception {
@@ -46,7 +46,7 @@ public class DbEchoPromote implements Callable<Void> {
         }
 
         LOG.info("Reading current DNS records");
-        String tld = DbEchoUtil.getTLD(cfg.cname()) + '.';
+        String tld = RdsEchoUtil.getTLD(cfg.cname()) + '.';
         HostedZone hostedZone = route53Find.hostedZone(nameEquals(tld)).get();
         LOG.info("  Found corresponding HostedZone. name: {} id: {}", hostedZone.getName(), hostedZone.getId());
 
@@ -77,6 +77,6 @@ public class DbEchoPromote implements Callable<Void> {
     }
 
     public static void main(String[] args) throws Exception {
-        new DbEchoPromote().call();
+        new EchoPromote().call();
     }
 }

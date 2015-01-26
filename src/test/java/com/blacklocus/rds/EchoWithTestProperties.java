@@ -6,12 +6,12 @@ import java.io.Reader;
 import java.util.Map;
 import java.util.Properties;
 
-public class DbEchoWithTestProperties {
+public class EchoWithTestProperties {
 
     static void bootstrapFromPropertiesFile() throws IOException {
         // bootstrap values into system properties
         Properties properties = new Properties();
-        try (Reader reader = new FileReader("dbecho.properties")) {
+        try (Reader reader = new FileReader("rdsecho.properties")) {
             properties.load(reader);
         }
 
@@ -23,14 +23,21 @@ public class DbEchoWithTestProperties {
     public static class New {
         public static void main(String[] args) throws Exception {
             bootstrapFromPropertiesFile();
-            DbEchoNew.main(args);
+            EchoNew.main(args);
+        }
+    }
+
+    public static class Modify {
+        public static void main(String[] args) throws Exception {
+            bootstrapFromPropertiesFile();
+            EchoModify.main(args);
         }
     }
 
     public static class Promote {
         public static void main(String[] args) throws Exception {
             bootstrapFromPropertiesFile();
-            DbEchoPromote.main(args);
+            EchoPromote.main(args);
         }
     }
 

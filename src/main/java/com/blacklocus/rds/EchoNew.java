@@ -7,11 +7,7 @@ import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.DBSnapshot;
 import com.amazonaws.services.rds.model.RestoreDBInstanceFromDBSnapshotRequest;
 import com.amazonaws.services.rds.model.Tag;
-import com.amazonaws.services.route53.AmazonRoute53;
-import com.amazonaws.services.route53.AmazonRoute53Client;
-import com.blacklocus.rds.utl.DbEchoUtil;
-import com.blacklocus.rds.utl.RdsFind;
-import com.blacklocus.rds.utl.Route53Find;
+import com.blacklocus.rds.utl.RdsEchoUtil;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -20,29 +16,26 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
 
-import static com.google.common.collect.Iterables.getOnlyElement;
-
 /**
  *
  */
-public class DbEchoNew implements Callable<Void> {
+public class EchoNew implements Callable<Boolean> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DbEchoNew.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EchoNew.class);
 
-    final AmazonRoute53 route53 = new AmazonRoute53Client();
     final AmazonRDS rds = new AmazonRDSClient();
-    final Route53Find route53Find = new Route53Find();
-    final RdsFind rdsFind = new RdsFind();
 
-    final DbEchoCfg cfg = new DbEchoCfg();
-    final DbEchoUtil echo = new DbEchoUtil();
+    final EchoCfg cfg = new EchoCfg();
+    final RdsEchoUtil echo = new RdsEchoUtil();
 
     @Override
-    public Void call() throws Exception {
+    public Boolean call() throws Exception {
+
+        // Do some sanity checks to make sure we aren't generating a bunch of trouble in RDS
 
         String tagEchoManaged = echo.getTagEchoManaged();
 
-        LOG.info("Checking to see if current echo-created instance {} was created less than 24 hours ago. " +
+        LOG.info("Checking to see if current echo-created instance (tagged {}) was created less than 24 hours ago. " +
                 "If so this operation will not continue.", tagEchoManaged);
         Optional<DBInstance> newestInstanceOpt = echo.lastEchoInstance();
         if (newestInstanceOpt.isPresent()) {
@@ -50,7 +43,7 @@ public class DbEchoNew implements Callable<Void> {
             if (new DateTime(newestInstanceOpt.get().getInstanceCreateTime()).plusHours(24).isAfter(DateTime.now())) {
                 LOG.info("  Last echo-created RDS instance {} was created less than 24 hours ago. Aborting.",
                         tagEchoManaged);
-                return null;
+                return false;
 
             } else {
                 LOG.info("  Last echo-created RDS instance {} was created more than 24 hours ago. Proceeding.",
@@ -61,6 +54,8 @@ public class DbEchoNew implements Callable<Void> {
             LOG.info("  No prior echo-created instance found with tag {}. Proceeding.", tagEchoManaged);
         }
 
+        // Locate a suitable snapshot to be the basis of the new instance
+
         LOG.info("Locating latest snapshot from {}", cfg.snapshotDbInstanceIdentifier());
         Optional<DBSnapshot> dbSnapshotOpt = echo.latestSnapshot();
         if (dbSnapshotOpt.isPresent()) {
@@ -70,8 +65,10 @@ public class DbEchoNew implements Callable<Void> {
 
         } else {
             LOG.info("  Could not locate a suitable snapshot. Cannot continue.");
-            return null;
+            return false;
         }
+
+        // Info summary
 
         String dbSnapshotIdentifier = dbSnapshotOpt.get().getDBSnapshotIdentifier();
         String newDbInstanceIdentifier = cfg.name() + '-' + DateTime.now(DateTimeZone.UTC).toString("yyyy-MM-dd");
@@ -98,13 +95,18 @@ public class DbEchoNew implements Callable<Void> {
                 cfg.newPort(),
                 cfg.newOptionGroupName(),
                 cfg.newAutoMinorVersionUpgrade());
+
+        // Interactive user confirmation
+
         if (cfg.interactive()) {
             String format = "Proceed to create a new DB instance from this snapshot? Input %s to confirm.";
-            if (!DbEchoUtil.prompt(newDbInstanceIdentifier, format, newDbInstanceIdentifier)) {
+            if (!RdsEchoUtil.prompt(newDbInstanceIdentifier, format, newDbInstanceIdentifier)) {
                 LOG.info("User declined to proceed. Exiting.");
-                return null;
+                return false;
             }
         }
+
+        // Create the new database
 
         LOG.info("Creating new DB instance. Hold on to your butts.");
         RestoreDBInstanceFromDBSnapshotRequest request = new RestoreDBInstanceFromDBSnapshotRequest()
@@ -121,19 +123,19 @@ public class DbEchoNew implements Callable<Void> {
                 .withAutoMinorVersionUpgrade(cfg.newAutoMinorVersionUpgrade())
                 .withTags(
                         new Tag().withKey(echo.getTagEchoManaged()).withValue("true"),
-                        new Tag().withKey(echo.getTagEchoStage()).withValue(DbEchoConst.STAGE_INITIALIZING)
+                        new Tag().withKey(echo.getTagEchoStage()).withValue(EchoConst.STAGE_NEW)
                 );
-        DBInstance instance = rds.restoreDBInstanceFromDBSnapshot(request);
+        rds.restoreDBInstanceFromDBSnapshot(request);
 
         LOG.info("Created new DB instance. \n" +
                         "  https://console.aws.amazon.com/rds/home?region={}#dbinstance:id={}\n" +
                         "Additional preparation of the instance will continue once the instance becomes available.",
                 cfg.region(), newDbInstanceIdentifier);
 
-        return null;
+        return true;
     }
 
     public static void main(String[] args) throws Exception {
-        new DbEchoNew().call();
+        new EchoNew().call();
     }
 }
