@@ -19,14 +19,16 @@ public class EchoReboot extends AbstractEchoIntermediateStage {
 
         String dbInstanceId = instance.getDBInstanceIdentifier();
         if (cfg.interactive()) {
-            if (!EchoUtil.prompt("reboot", "Are you sure you would like to reboot instance %s? Input %s to confirm.")) {
+            if (!EchoUtil.prompt(dbInstanceId, "Are you sure you would like to reboot the instance? Input %s to confirm.",
+                    dbInstanceId)) {
                 LOG.info("User declined to proceed. Exiting.");
                 return false;
             }
         }
 
         LOG.info("Rebooting instance {}", dbInstanceId);
-        rds.rebootDBInstance(new RebootDBInstanceRequest());
+        rds.rebootDBInstance(new RebootDBInstanceRequest()
+                .withDBInstanceIdentifier(dbInstanceId));
 
         return true;
     }

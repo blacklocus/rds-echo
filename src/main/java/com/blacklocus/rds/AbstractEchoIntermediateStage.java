@@ -49,15 +49,15 @@ abstract class AbstractEchoIntermediateStage implements Callable<Boolean> {
             LOG.error("Unable to read Echo stage tag so cannot determine stage. To forcefully set the stage, edit " +
                             "the instance's tags to add {}={} and run this modify operation again. " +
                             "Cannot continue as it is so exiting.",
-                    tagEchoStage, EchoConst.STAGE_NEW);
+                    tagEchoStage, requisiteStage);
             return false;
         }
         String instanceStage = stageOpt.get().getValue();
-        if (!EchoConst.STAGE_NEW.equals(instanceStage)) {
+        if (!requisiteStage.equals(instanceStage)) {
             LOG.error("Current Echo stage on instance is {}={} but needs to be {}={}. To forcefully set the stage, " +
                             "edit the instance's tags to set the required stage and run this modify operation again. " +
                             "Cannot continue as it is so exiting.",
-                    tagEchoStage, instanceStage, tagEchoStage, EchoConst.STAGE_NEW);
+                    tagEchoStage, instanceStage, tagEchoStage, requisiteStage);
         }
 
         // Looks like we found a good echo instance, but is it available to us.
@@ -77,7 +77,7 @@ abstract class AbstractEchoIntermediateStage implements Callable<Boolean> {
             // Advance. This replaces, same-named tags.
             rds.addTagsToResource(new AddTagsToResourceRequest()
                     .withResourceName(RdsFind.instanceArn(cfg.region(), cfg.accountNumber(), instance.getDBInstanceIdentifier()))
-                    .withTags(new Tag().withKey(tagEchoStage).withValue(EchoConst.STAGE_MODIFIED)));
+                    .withTags(new Tag().withKey(tagEchoStage).withValue(resultantStage)));
 
             return true;
 
