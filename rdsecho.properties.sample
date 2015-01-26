@@ -12,16 +12,14 @@ rdsecho.interactive=true
 # but effective name might simply be "development". This value will be incorporated RDS names.
 rdsecho.name=development
 
-# The Route53 CNAME which points at the currently active instance. Include the trailing '.' in the typical
-# fashion of DNS records.
-rdsecho.cname=dev.domain.com.
-
 # AWS regions with RDS which are
 #     us-east-1, us-west-1, us-west-2, us-gov-west-1, eu-west-1, eu-central-1,
 #     ap-northeast-1, ap-southeast-1, ap-southeast-2, sa-east-1
 rdsecho.region=us-east-1
+
 # Your AWS account number
 rdsecho.accountNumber=1234567890
+
 # The name of the instance whose snapshots we want to echo into a new instance using this tool. Typically, this
 # identifies snapshots of the production database, whose snapshots we want to regularly restore to staging, development,
 # and other such lower echelon environments.
@@ -51,3 +49,13 @@ rdsecho.mod.dbParameterGroupName=default.mysql5.6
 rdsecho.mod.dbSecurityGroups=development,admin
 rdsecho.mod.backupRetentionPeriod=0
 rdsecho.mod.applyImmediately=true
+
+
+
+# Promotion
+
+# The Route53 CNAME which points at the currently active instance. Include the trailing '.' in the typical
+# fashion of DNS records.
+rdsecho.promote.cname=dev.domain.com.
+rdsecho.promote.ttl=300
+

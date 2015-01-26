@@ -1,79 +1,86 @@
 package com.blacklocus.rds;
 
-import com.amazonaws.services.rds.AmazonRDS;
-import com.amazonaws.services.rds.AmazonRDSClient;
 import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.Endpoint;
+import com.amazonaws.services.route53.AmazonRoute53;
+import com.amazonaws.services.route53.AmazonRoute53Client;
+import com.amazonaws.services.route53.model.Change;
+import com.amazonaws.services.route53.model.ChangeAction;
+import com.amazonaws.services.route53.model.ChangeBatch;
+import com.amazonaws.services.route53.model.ChangeResourceRecordSetsRequest;
 import com.amazonaws.services.route53.model.HostedZone;
+import com.amazonaws.services.route53.model.RRType;
 import com.amazonaws.services.route53.model.ResourceRecord;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
 import com.blacklocus.rds.utl.EchoUtil;
 import com.blacklocus.rds.utl.Route53Find;
-import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.Callable;
 
 import static com.blacklocus.rds.utl.Route53Find.cnameEquals;
 import static com.blacklocus.rds.utl.Route53Find.nameEquals;
 import static com.google.common.collect.Iterables.getOnlyElement;
 
-/**
- *
- */
-public class EchoPromote implements Callable<Void> {
+public class EchoPromote extends AbstractEchoIntermediateStage {
 
     private static final Logger LOG = LoggerFactory.getLogger(EchoPromote.class);
 
-    final AmazonRDS rds = new AmazonRDSClient();
+    final AmazonRoute53 route53 = new AmazonRoute53Client();
     final Route53Find route53Find = new Route53Find();
 
-    final EchoCfg cfg = new EchoCfg();
-    final EchoUtil echo = new EchoUtil();
+    public EchoPromote() {
+        super(EchoConst.STAGE_REBOOTED, EchoConst.STAGE_PROMOTED);
+    }
 
     @Override
-    public Void call() throws Exception {
-
-        String tagEchoManaged = echo.getTagEchoManaged();
-
-        LOG.info("Locating last echo instance with tag {}", tagEchoManaged);
-        Optional<DBInstance> newestInstanceOpt = echo.lastEchoInstance();
-        if (!newestInstanceOpt.isPresent()) {
-            LOG.error("  There is no echo instance tagged with {}. Cannot promote nothing to CNAME {}. Exiting.",
-                    tagEchoManaged, cfg.cname());
-            return null;
-        }
+    boolean traverseStage(DBInstance instance) {
 
         LOG.info("Reading current DNS records");
-        String tld = EchoUtil.getTLD(cfg.cname()) + '.';
+        String tld = EchoUtil.getTLD(cfg.promoteCname()) + '.';
         HostedZone hostedZone = route53Find.hostedZone(nameEquals(tld)).get();
         LOG.info("  Found corresponding HostedZone. name: {} id: {}", hostedZone.getName(), hostedZone.getId());
 
         ResourceRecordSet resourceRecordSet = route53Find.resourceRecordSet(
-                hostedZone.getId(), cnameEquals(cfg.cname())).get();
+                hostedZone.getId(), cnameEquals(cfg.promoteCname())).get();
         ResourceRecord resourceRecord = getOnlyElement(resourceRecordSet.getResourceRecords());
         LOG.info("  Found CNAME {} with current value {}", resourceRecordSet.getName(), resourceRecord.getValue());
 
-        if (newestInstanceOpt.isPresent()) {
-            DBInstance instance = newestInstanceOpt.get();
-            Endpoint endpoint = instance.getEndpoint();
-            if (null == endpoint) {
-                LOG.info("Echo DB instance {} (id: {}) has no address. Is it still initializing?",
-                        tagEchoManaged, instance.getDBInstanceIdentifier());
-                return null;
-            }
-            String echoInstanceAddr = endpoint.getAddress();
-            if (resourceRecord.getValue().equals(echoInstanceAddr)) {
-                LOG.info("  Echo DB instance {} ({}) lines up with CNAME {}.",
-                        tagEchoManaged, echoInstanceAddr, resourceRecordSet.getName());
-            } else {
-                LOG.info("  Echo DB instance {} ({}) differs from CNAME {}.",
-                        tagEchoManaged, echoInstanceAddr, resourceRecordSet.getName());
+        Endpoint endpoint = instance.getEndpoint();
+        String tagEchoManaged = echo.getTagEchoManaged();
+        String dbInstanceId = instance.getDBInstanceIdentifier();
+        if (null == endpoint) {
+            LOG.info("Echo DB instance {} (id: {}) has no address. Is it still initializing?",
+                    tagEchoManaged, dbInstanceId);
+            return false;
+        }
+        String instanceAddr = endpoint.getAddress();
+        if (resourceRecord.getValue().equals(instanceAddr)) {
+            LOG.info("  Echo DB instance {} ({}) lines up with CNAME {}. Nothing to do.",
+                    tagEchoManaged, instanceAddr, resourceRecordSet.getName());
+            return false;
+        } else {
+            LOG.info("  Echo DB instance {} ({}) differs from CNAME {}.",
+                    tagEchoManaged, instanceAddr, resourceRecordSet.getName());
+        }
+
+        if (cfg.interactive()) {
+            String format = "Are you sure you want to promote %s to be the new target of %s? Input %s to confirm.";
+            if (!EchoUtil.prompt(dbInstanceId, format, dbInstanceId, cfg.promoteCname(), dbInstanceId)) {
+                LOG.info("User declined to proceed. Exiting.");
+                return false;
             }
         }
 
-        return null;
+        LOG.info("Updating CNAME {} from {} to {}", cfg.name(), resourceRecord.getValue(), instanceAddr);
+        ChangeResourceRecordSetsRequest request = new ChangeResourceRecordSetsRequest()
+                .withHostedZoneId(hostedZone.getId())
+                .withChangeBatch(new ChangeBatch()
+                        .withChanges(new Change(ChangeAction.UPSERT, new ResourceRecordSet(cfg.promoteCname(), RRType.CNAME)
+                                .withResourceRecords(new ResourceRecord(instanceAddr))
+                                .withTTL(cfg.promoteTtl()))));
+        route53.changeResourceRecordSets(request);
+
+        return true;
     }
 
     public static void main(String[] args) throws Exception {

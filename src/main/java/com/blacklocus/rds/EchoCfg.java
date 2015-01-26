@@ -12,7 +12,6 @@ public class EchoCfg {
     // Required, must be defined
     public static final String PROP_INTERACTIVE = PREFIX + "interactive";
     public static final String PROP_NAME = PREFIX + "name";
-    public static final String PROP_CNAME = PREFIX + "cname";
     public static final String PROP_REGION = PREFIX + "region";
     public static final String PROP_ACCOUNT_NUMBER = PREFIX + "accountNumber";
     public static final String PROP_SNAPSHOT_DB_INSTANCE_IDENTIFIER = PREFIX + "snapshot.dbInstanceIdentifier";
@@ -34,10 +33,12 @@ public class EchoCfg {
     public static final String PROP_MOD_BACKUP_RETENTION_PERIOD = PREFIX + "mod.backupRetentionPeriod";
     public static final String PROP_MOD_APPLY_IMMEDIATELY = PREFIX + "mod.applyImmediately";
 
+    public static final String PROP_PROMOTE_CNAME = PREFIX + "promote.cname";
+    public static final String PROP_PROMOTE_TTL = PREFIX + "promote.ttl";
+
     final String[] required = new String[]{
             PROP_INTERACTIVE,
             PROP_NAME,
-            PROP_CNAME,
             PROP_REGION,
             PROP_ACCOUNT_NUMBER,
             PROP_SNAPSHOT_DB_INSTANCE_IDENTIFIER,
@@ -50,7 +51,9 @@ public class EchoCfg {
             PROP_NEW_PORT,
             PROP_NEW_OPTION_GROUP_NAME,
             PROP_NEW_AUTO_MINOR_VERSION_UPGRADE,
-            PROP_MOD_APPLY_IMMEDIATELY
+            PROP_MOD_APPLY_IMMEDIATELY,
+            PROP_PROMOTE_CNAME,
+            PROP_PROMOTE_TTL,
     };
     final Configuration cfg = new SystemConfiguration();
 
@@ -70,10 +73,6 @@ public class EchoCfg {
 
     public String name() {
         return cfg.getString(PROP_NAME);
-    }
-
-    public String cname() {
-        return cfg.getString(PROP_CNAME);
     }
 
     public String region() {
@@ -144,5 +143,13 @@ public class EchoCfg {
 
     public boolean modApplyImmediately() {
         return cfg.getBoolean(PROP_MOD_APPLY_IMMEDIATELY);
+    }
+
+    public String promoteCname() {
+        return cfg.getString(PROP_PROMOTE_CNAME);
+    }
+
+    public long promoteTtl() {
+        return cfg.getLong(PROP_PROMOTE_TTL);
     }
 }
