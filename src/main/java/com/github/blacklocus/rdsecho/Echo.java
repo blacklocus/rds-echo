@@ -68,7 +68,7 @@ public class Echo {
                 .format("$ rds-echo <command>%n")
                 .format("%n")
                 .format("RDS Echo is configured by rdsecho.properties in the current working directory.%n")
-                .format(" Run 'rds-echo config' to get a starter template.%n")
+                .format("Run 'rds-echo config' to get a starter template.%n")
                 .format("%n")
                 .format("Valid commands correspond to Echo stages:%n")
                 .format("%n");
