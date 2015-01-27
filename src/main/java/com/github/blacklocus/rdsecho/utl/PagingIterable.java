@@ -35,4 +35,9 @@ class PagingIterable<T> implements Iterable<T>, Iterator<T> {
         }
         return next;
     }
+
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException();
+    }
 }
