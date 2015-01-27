@@ -1,17 +1,19 @@
 RDS Echo
 ========
-A tool to simplify automated restore-from-snapshot operations in Amazon RDS. TODO link to The Workflow section
+A tool to simplify automated restore-from-snapshot operations in Amazon RDS.
 
 To get a snapshot into a usable state must happen in at least two distinct stages: the **initial restore request**, and
 **instance modification** once it is available. Then there's usually some form of **promotion** where you ask "Is
-everyone ready for me to swap out the old with the new instance?" and then update the CNAME to point at the fresh
-instance.
+everyone ready for me to swap out the old with the new instance?" and then (in our case) update the CNAME to point at the fresh
+instance. Finally, the old instance will be destroyed.
 
 
 
 ## Get It ##
+RDS Echo is a command line tool.
 
-TODO distribution
+Current release: v0.1.0
+Available on GitHub: [rds-echo releases](https://github.com/blacklocus/rds-echo/releases)
 
 
 
