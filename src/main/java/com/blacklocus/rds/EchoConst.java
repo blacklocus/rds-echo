@@ -3,6 +3,11 @@ package com.blacklocus.rds;
 public class EchoConst {
 
     /**
+     * Name of the properties file that configures this application.
+     */
+    public static final String CONFIGURATION_PROPERTIES = "rdsecho.properties";
+
+    /**
      * Tag that marks an instance as Echo managed.
      */
     public static final String TAG_ECHO_MANAGED_FMT = "rdsecho:%s:managed";
@@ -33,9 +38,16 @@ public class EchoConst {
 
     /**
      * The stage that marks an instance as having been rebooted and ready to be used with all necessary settings. The
-     * instance is not yet the target of the CNAME that all participants use to target the particular environment.
+     * instance is the target of the CNAME that all participants use to target the particular environment. For a
+     * particular environment there should be at most one promoted instance at any given time.
      */
     public static final String STAGE_PROMOTED = "promoted";
+
+    /**
+     * The stage that marks instances bumped out of the way by a recent promotion. Any existing promoted instance will
+     * be placed in this stage, which marks it ready for retirement.
+     */
+    public static final String STAGE_FORGOTTEN = "forgotten";
 
     /**
      * The stage that marks an instance as finished, and should no longer be used. The instance may be in the process of

@@ -80,6 +80,9 @@ public class EchoPromote extends AbstractEchoIntermediateStage {
                                 .withTTL(cfg.promoteTtl()))));
         route53.changeResourceRecordSets(request);
 
+        LOG.info("Searching for any existing promoted instance to demote.");
+
+
         return true;
     }
 

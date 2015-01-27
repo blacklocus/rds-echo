@@ -9,7 +9,7 @@ rdsecho.interactive=true
 # General
 
 # Human-readable name, what you would usually say in conversation when talking about the database. An uninteresting
-# but effective name might simply be "development". This value will be incorporated RDS names.
+# but effective name might simply be "development". This value will be incorporated into RDS names.
 rdsecho.name=development
 
 # AWS regions with RDS which are
@@ -58,4 +58,11 @@ rdsecho.mod.applyImmediately=true
 # fashion of DNS records.
 rdsecho.promote.cname=dev.domain.com.
 rdsecho.promote.ttl=300
+
+
+
+# Retirement
+
+rdsecho.retire.skipFinalSnapshot=true
+rdsecho.retire.finalDbSnapshotIdentifier=
 

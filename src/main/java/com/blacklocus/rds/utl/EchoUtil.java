@@ -6,6 +6,7 @@ import com.amazonaws.services.rds.model.Tag;
 import com.blacklocus.rds.EchoCfg;
 import com.blacklocus.rds.EchoConst;
 import com.google.common.base.Optional;
+import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,12 @@ public class EchoUtil {
     public Optional<DBInstance> lastEchoInstance() {
         return RdsFind.newestInstance(rdsFind.instances(rdsFind.instanceHasTag(
                 cfg.region(), cfg.accountNumber(), getTagEchoManaged(), "true")));
+    }
+
+    public Optional<DBInstance> promotedInstance() {
+        return Optional.fromNullable(Iterables.getOnlyElement(rdsFind.instances(rdsFind.instanceHasTag(
+                cfg.region(), cfg.accountNumber(), getTagEchoStage(), EchoConst.STAGE_PROMOTED
+        )), null));
     }
 
     public Optional<Tag> instanceStage(String dbInstanceIdentifier) {

@@ -35,16 +35,19 @@ abstract class AbstractEchoIntermediateStage implements Callable<Boolean> {
 
         // Validate state, make sure we're operating on what we expect to.
 
-        LOG.info("Locating latest Echo managed instance tagged {}.", echo.getTagEchoManaged());
+        String tagEchoManaged = echo.getTagEchoManaged();
+        String tagEchoStage = echo.getTagEchoStage();
+
+        LOG.info("Locating latest Echo managed instance (tagged with {}=true) in stage '{}' (tagged with {}={}).",
+                tagEchoManaged, requisiteStage, tagEchoStage, requisiteStage);
         Optional<DBInstance> instanceOpt = echo.lastEchoInstance();
         if (!instanceOpt.isPresent()) {
-            LOG.error("  Unable to locate Echo-managed instance. Is there one? Aborting.", echo.getTagEchoManaged());
+            LOG.error("  Unable to locate Echo-managed instance. Is there one? Aborting.", tagEchoManaged);
             return false;
         }
 
         DBInstance instance = instanceOpt.get();
         Optional<Tag> stageOpt = echo.instanceStage(instance.getDBInstanceIdentifier());
-        String tagEchoStage = echo.getTagEchoStage();
         if (!stageOpt.isPresent()) {
             LOG.error("Unable to read Echo stage tag so cannot determine stage. To forcefully set the stage, edit " +
                             "the instance's tags to add {}={} and run this modify operation again. " +

@@ -2,10 +2,16 @@ package com.blacklocus.rds;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.CompositeConfiguration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.SystemConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EchoCfg {
+
+    private static final Logger LOG = LoggerFactory.getLogger(EchoCfg.class);
 
     public static final String PREFIX = "rdsecho.";
 
@@ -33,8 +39,13 @@ public class EchoCfg {
     public static final String PROP_MOD_BACKUP_RETENTION_PERIOD = PREFIX + "mod.backupRetentionPeriod";
     public static final String PROP_MOD_APPLY_IMMEDIATELY = PREFIX + "mod.applyImmediately";
 
+    // Promote parameters are required
     public static final String PROP_PROMOTE_CNAME = PREFIX + "promote.cname";
     public static final String PROP_PROMOTE_TTL = PREFIX + "promote.ttl";
+
+    // Retire parameters are optional and unspecified take on AWS defaults
+    public static final String PROP_RETIRE_SKIP_FINAL_SNAPSHOT = PREFIX + "retire.skipFinalSnapshot";
+    public static final String PROP_RETIRE_FINAL_DB_SNAPSHOT_IDENTIFIER = PREFIX + "retire.finalDbSnapshotIdentifier";
 
     final String[] required = new String[]{
             PROP_INTERACTIVE,
@@ -55,9 +66,18 @@ public class EchoCfg {
             PROP_PROMOTE_CNAME,
             PROP_PROMOTE_TTL,
     };
-    final Configuration cfg = new SystemConfiguration();
+    final CompositeConfiguration cfg;
 
     public EchoCfg() {
+        this.cfg = new CompositeConfiguration();
+        this.cfg.addConfiguration(new SystemConfiguration());
+        try {
+            this.cfg.addConfiguration(new PropertiesConfiguration(EchoConst.CONFIGURATION_PROPERTIES));
+            LOG.info("Reading configuration from {}", EchoConst.CONFIGURATION_PROPERTIES);
+
+        } catch (ConfigurationException e) {
+            LOG.info("{} will not be read because {}", EchoConst.CONFIGURATION_PROPERTIES, e.getMessage());
+        }
         validate();
     }
 
@@ -151,5 +171,13 @@ public class EchoCfg {
 
     public long promoteTtl() {
         return cfg.getLong(PROP_PROMOTE_TTL);
+    }
+
+    public Optional<Boolean> retireSkipFinalSnapshot() {
+        return Optional.fromNullable(cfg.getBoolean(PROP_RETIRE_SKIP_FINAL_SNAPSHOT, null));
+    }
+
+    public Optional<String> retireFinalDbSnapshotIdentifier() {
+        return Optional.fromNullable(cfg.getString(PROP_RETIRE_FINAL_DB_SNAPSHOT_IDENTIFIER));
     }
 }
