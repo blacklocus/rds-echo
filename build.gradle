@@ -216,6 +216,7 @@ idea {
 task cliJar(type: OneJar) {
     mainClass = 'com.github.blacklocus.rdsecho.Echo'
     archiveName = 'rds-echo.jar'
+    additionalDir = file('src/main/onejar')
 }
 
 task cliDist(dependsOn: cliJar) {

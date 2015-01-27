@@ -9,4 +9,4 @@
 build/
 
 # Application
-*.properties
+rdsecho.properties
