@@ -1,9 +1,11 @@
+import com.google.common.io.Files
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Settings
 ext {
     project_group = 'com.github.blacklocus'
     project_version = '0.0.1-SNAPSHOT'
-    project_jdk = '1.6'
+    project_jdk = '1.7'
     project_pom = {
         name 'rds-echo'
         description 'Tooling for automated RDS restorations from snapshots'
@@ -114,6 +116,7 @@ dependencies {
     compile 'commons-configuration:commons-configuration:1.10'
     compile 'org.bitbucket.cowwoc:preconditions:1.12'
     compile 'com.sun.jersey:jersey-core:1.18.3'
+    compile 'com.ibm.icu:icu4j:54.1.1'
     compile 'org.slf4j:slf4j-api:1.7.10'
     compile 'ch.qos.logback:logback-core:1.1.2'
     compile 'ch.qos.logback:logback-classic:1.1.2'
@@ -210,7 +213,26 @@ idea {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // RDS Echo specific
 
-task distCli(type: OneJar) {
+task cliJar(type: OneJar) {
     mainClass = 'com.github.blacklocus.rdsecho.Echo'
+    archiveName = 'rds-echo.jar'
 }
 
+task cliDist(dependsOn: cliJar) {
+    ext.bashFile = file('src/main/bash/rdsecho.bash')
+    ext.jarFile = file('build/libs/rds-echo.jar')
+    ext.cliFile = file('build/libs/rds-echo')
+    inputs.files bashFile, jarFile
+    outputs.file cliFile
+
+    doLast {
+        cliFile.createNewFile()
+        cliFile.setExecutable(true, false)
+        def fileOutputStream = new FileOutputStream(cliFile, true)
+        fileOutputStream.withCloseable {
+            Files.copy(bashFile, fileOutputStream)
+            Files.copy(jarFile, fileOutputStream)
+            fileOutputStream.flush()
+        }
+    }
+}

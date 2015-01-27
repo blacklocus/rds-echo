@@ -6,8 +6,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Echo {
 
@@ -62,13 +66,43 @@ public class Echo {
         p.format("$ rds-echo <command>%n");
         p.format("%n");
         p.format("Valid commands correspond to Echo stages:%n");
+        p.format("%n");
         for (Map.Entry<String, CommandBundle> e : COMMANDS.entrySet()) {
-            p.format("  %-8s%-70s%n", e.getKey(), e.getValue().description);
+            List<String> descriptionLines = wrap(e.getValue().description, 90); // for a total of 100
+            p.format("  %-8s%s%n", e.getKey(), descriptionLines.get(0));
+            for (int i = 1; i < descriptionLines.size(); i++) {
+                p.format("  %-8s%s%n", "", descriptionLines.get(i));
+            }
+            p.format("%n");
         }
         p.format("%n");
         p.format("See the README for more details at https://github.com/blacklocus/rds-echo%n");
 
         LOG.info(s.toString());
+    }
+
+    static List<String> wrap(String description, int width) {
+        // rough-hewn code
+        Matcher m = Pattern.compile("\\S+\\s*").matcher(description);
+        StringBuilder line = new StringBuilder(width);
+        List<String> lines = new ArrayList<String>();
+        while (m.find()) {
+            String group = m.group();
+            line = wrapLineHelper(line, lines, group, width);
+            line.append(group);
+        }
+        if (line.length() > 0) {
+            lines.add(line.toString());
+        }
+        return lines;
+    }
+
+    static StringBuilder wrapLineHelper(StringBuilder line, List<String> lines, String group, int width) {
+        if (line.length() + group.length() > width) {
+            lines.add(line.toString());
+            line = new StringBuilder(width);
+        }
+        return line;
     }
 
     static CommandBundle bundle(Class<? extends Callable<Boolean>> commandClass, String descriptionFormat, Object... formatArgs) {
