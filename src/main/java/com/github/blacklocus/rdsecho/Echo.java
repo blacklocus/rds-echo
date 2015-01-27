@@ -18,6 +18,9 @@ public class Echo {
     private static final Logger LOG = LoggerFactory.getLogger(Echo.class);
 
     static final Map<String, CommandBundle> COMMANDS = ImmutableMap.<String, CommandBundle>builder()
+            .put("config", bundle(EchoSampleCfg.class,
+                    "Drops an rdsecho.properties template into the current working directory, which must be " +
+                            "configured before any other RDS Echo command will function."))
             .put("new", bundle(EchoNew.class,
                     "Creates a stage '%s' instance from a snapshot. This is usually the longest operation.",
                     EchoConst.STAGE_NEW))
@@ -60,13 +63,16 @@ public class Echo {
 
     static void printUsage() {
         StringWriter s = new StringWriter();
-        PrintWriter p = new PrintWriter(s);
+        PrintWriter p = new PrintWriter(s)
+                .format("usage:%n")
+                .format("$ rds-echo <command>%n")
+                .format("%n")
+                .format("RDS Echo is configured by rdsecho.properties in the current working directory.%n")
+                .format(" Run 'rds-echo config' to get a starter template.%n")
+                .format("%n")
+                .format("Valid commands correspond to Echo stages:%n")
+                .format("%n");
 
-        p.format("usage:%n");
-        p.format("$ rds-echo <command>%n");
-        p.format("%n");
-        p.format("Valid commands correspond to Echo stages:%n");
-        p.format("%n");
         for (Map.Entry<String, CommandBundle> e : COMMANDS.entrySet()) {
             List<String> descriptionLines = wrap(e.getValue().description, 90); // for a total of 100
             p.format("  %-8s%s%n", e.getKey(), descriptionLines.get(0));
@@ -75,6 +81,7 @@ public class Echo {
             }
             p.format("%n");
         }
+
         p.format("%n");
         p.format("See the README for more details at https://github.com/blacklocus/rds-echo%n");
 
