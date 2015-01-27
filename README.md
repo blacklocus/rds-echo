@@ -12,7 +12,8 @@ instance. Finally, the old instance will be destroyed.
 ## Get It ##
 RDS Echo is a command line tool.
 
-Current release: v0.1.0
+Current release: [v0.1.0](https://github.com/blacklocus/rds-echo/releases/download/v0.1.0/rds-echo)
+
 Available on GitHub: [rds-echo releases](https://github.com/blacklocus/rds-echo/releases)
 
 
