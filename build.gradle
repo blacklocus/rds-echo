@@ -3,7 +3,7 @@
 ext {
     project_group = 'com.github.blacklocus'
     project_version = '0.0.1-SNAPSHOT'
-    project_jdk = '1.7'
+    project_jdk = '1.6'
     project_pom = {
         name 'rds-echo'
         description 'Tooling for automated RDS restorations from snapshots'
@@ -90,6 +90,16 @@ apply plugin: 'application'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'idea'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.github.rholder:gradle-one-jar:1.0.4'
+    }
+}
+apply plugin: 'gradle-one-jar'
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Dependencies
@@ -195,5 +205,12 @@ idea {
         languageLevel = project_jdk
         vcs = 'Git'
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// RDS Echo specific
+
+task distCli(type: OneJar) {
+    mainClass = 'com.github.blacklocus.rdsecho.Echo'
 }
 

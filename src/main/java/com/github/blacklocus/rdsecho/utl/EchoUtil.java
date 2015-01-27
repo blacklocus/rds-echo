@@ -1,10 +1,10 @@
-package com.blacklocus.rds.utl;
+package com.github.blacklocus.rdsecho.utl;
 
 import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.DBSnapshot;
 import com.amazonaws.services.rds.model.Tag;
-import com.blacklocus.rds.EchoCfg;
-import com.blacklocus.rds.EchoConst;
+import com.github.blacklocus.rdsecho.EchoCfg;
+import com.github.blacklocus.rdsecho.EchoConst;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import org.slf4j.Logger;

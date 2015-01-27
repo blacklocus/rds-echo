@@ -1,4 +1,4 @@
-package com.blacklocus.rds.utl;
+package com.github.blacklocus.rdsecho.utl;
 
 import com.amazonaws.services.rds.AmazonRDS;
 import com.amazonaws.services.rds.AmazonRDSClient;
@@ -116,7 +116,7 @@ public class RdsFind {
         };
     }
 
-    public static Predicate<Tag> tagName(String name) {
+    public static Predicate<Tag> tagName(final String name) {
         return new Predicate<Tag>() {
             @Override
             public boolean apply(Tag tag) {

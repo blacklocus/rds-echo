@@ -1,4 +1,4 @@
-package com.blacklocus.rds.utl;
+package com.github.blacklocus.rdsecho.utl;
 
 import com.google.common.base.Supplier;
 import org.apache.http.annotation.NotThreadSafe;

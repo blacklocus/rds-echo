@@ -1,8 +1,8 @@
-package com.blacklocus.rds;
+package com.github.blacklocus.rdsecho;
 
 import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.DeleteDBInstanceRequest;
-import com.blacklocus.rds.utl.EchoUtil;
+import com.github.blacklocus.rdsecho.utl.EchoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

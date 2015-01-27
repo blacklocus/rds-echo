@@ -1,4 +1,4 @@
-package com.blacklocus.rds;
+package com.github.blacklocus.rdsecho;
 
 import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.Endpoint;
@@ -12,13 +12,13 @@ import com.amazonaws.services.route53.model.HostedZone;
 import com.amazonaws.services.route53.model.RRType;
 import com.amazonaws.services.route53.model.ResourceRecord;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
-import com.blacklocus.rds.utl.EchoUtil;
-import com.blacklocus.rds.utl.Route53Find;
+import com.github.blacklocus.rdsecho.utl.EchoUtil;
+import com.github.blacklocus.rdsecho.utl.Route53Find;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.blacklocus.rds.utl.Route53Find.cnameEquals;
-import static com.blacklocus.rds.utl.Route53Find.nameEquals;
+import static com.github.blacklocus.rdsecho.utl.Route53Find.cnameEquals;
+import static com.github.blacklocus.rdsecho.utl.Route53Find.nameEquals;
 import static com.google.common.collect.Iterables.getOnlyElement;
 
 public class EchoPromote extends AbstractEchoIntermediateStage {

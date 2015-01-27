@@ -1,4 +1,4 @@
-package com.blacklocus.rds;
+package com.github.blacklocus.rdsecho;
 
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class Echo {
             if (bundle == null) {
                 LOG.error("Unrecognized command '{}'.");
                 printUsage();
-                
+
             } else {
                 bundle.commandClass.newInstance().call();
             }
@@ -58,7 +58,8 @@ public class Echo {
         StringWriter s = new StringWriter();
         PrintWriter p = new PrintWriter(s);
 
-        p.format("usage: rds-echo <command>%n");
+        p.format("usage:%n");
+        p.format("$ rds-echo <command>%n");
         p.format("%n");
         p.format("Valid commands correspond to Echo stages:%n");
         for (Map.Entry<String, CommandBundle> e : COMMANDS.entrySet()) {

@@ -1,12 +1,12 @@
-package com.blacklocus.rds;
+package com.github.blacklocus.rdsecho;
 
 import com.amazonaws.services.rds.AmazonRDS;
 import com.amazonaws.services.rds.AmazonRDSClient;
 import com.amazonaws.services.rds.model.AddTagsToResourceRequest;
 import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.Tag;
-import com.blacklocus.rds.utl.EchoUtil;
-import com.blacklocus.rds.utl.RdsFind;
+import com.github.blacklocus.rdsecho.utl.EchoUtil;
+import com.github.blacklocus.rdsecho.utl.RdsFind;
 import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

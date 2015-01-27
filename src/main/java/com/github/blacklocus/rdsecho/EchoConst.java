@@ -1,4 +1,4 @@
-package com.blacklocus.rds;
+package com.github.blacklocus.rdsecho;
 
 public class EchoConst {
 

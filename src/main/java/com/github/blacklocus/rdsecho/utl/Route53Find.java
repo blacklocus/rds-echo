@@ -1,4 +1,4 @@
-package com.blacklocus.rds.utl;
+package com.github.blacklocus.rdsecho.utl;
 
 import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.AmazonRoute53Client;

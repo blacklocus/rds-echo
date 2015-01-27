@@ -1,4 +1,4 @@
-package com.blacklocus.rds;
+package com.github.blacklocus.rdsecho;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;

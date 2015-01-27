@@ -1,4 +1,4 @@
-package com.blacklocus.rds;
+package com.github.blacklocus.rdsecho;
 
 
 import com.amazonaws.services.rds.AmazonRDS;
@@ -7,7 +7,7 @@ import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.DBSnapshot;
 import com.amazonaws.services.rds.model.RestoreDBInstanceFromDBSnapshotRequest;
 import com.amazonaws.services.rds.model.Tag;
-import com.blacklocus.rds.utl.EchoUtil;
+import com.github.blacklocus.rdsecho.utl.EchoUtil;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

@@ -1,8 +1,8 @@
-package com.blacklocus.rds;
+package com.github.blacklocus.rdsecho;
 
 import com.amazonaws.services.route53.model.HostedZone;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
-import com.blacklocus.rds.utl.Route53Find;
+import com.github.blacklocus.rdsecho.utl.Route53Find;
 import org.testng.annotations.Test;
 
 public class AWSFindTest {
