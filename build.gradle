@@ -99,9 +99,11 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.rholder:gradle-one-jar:1.0.4'
+        classpath 'com.github.rholder:gradle-autojar:1.0.1'
     }
 }
 apply plugin: 'gradle-one-jar'
+apply plugin: 'gradle-autojar'
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Dependencies
@@ -116,7 +118,7 @@ dependencies {
     compile 'commons-configuration:commons-configuration:1.10'
     compile 'org.bitbucket.cowwoc:preconditions:1.12'
     compile 'com.sun.jersey:jersey-core:1.18.3'
-    compile 'com.ibm.icu:icu4j:54.1.1'
+    //compile 'com.ibm.icu:icu4j:54.1.1' // TODO um... what is this for?
     compile 'org.slf4j:slf4j-api:1.7.10'
     compile 'ch.qos.logback:logback-core:1.1.2'
     compile 'ch.qos.logback:logback-classic:1.1.2'
@@ -213,6 +215,10 @@ idea {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // RDS Echo specific
 
+def findJar(prefix) {
+    return configurations.compile.filter { it.name.startsWith(prefix) }
+}
+
 task cliJar(type: OneJar) {
     mainClass = 'com.github.blacklocus.rdsecho.Echo'
     archiveName = 'rds-echo.jar'
@@ -222,6 +228,70 @@ task cliJar(type: OneJar) {
 task cliDist(dependsOn: cliJar) {
     ext.bashFile = file('src/main/bash/rdsecho.bash')
     ext.jarFile = file('build/libs/rds-echo.jar')
+    ext.cliFile = file('build/libs/rds-echo')
+    inputs.files bashFile, jarFile
+    outputs.file cliFile
+
+    doLast {
+        cliFile.createNewFile()
+        cliFile.setExecutable(true, false)
+        def fileOutputStream = new FileOutputStream(cliFile, true)
+        fileOutputStream.withCloseable {
+            Files.copy(bashFile, fileOutputStream)
+            Files.copy(jarFile, fileOutputStream)
+            fileOutputStream.flush()
+        }
+    }
+}
+
+task prepareJodaTimezones(type: Copy) {
+    group = "Distribution"
+    description = "Extract joda-time timezone data files out to the build directory"
+
+    def jarFile = findJar('joda-time').singleFile
+    def outputDir = new File(buildDir, "joda-time")
+
+    from zipTree(jarFile)
+    into outputDir
+    include 'org/joda/time/tz/data/**'
+}
+
+task cliAutojar(type: Autojar, dependsOn: prepareJodaTimezones) {
+    group = "Distribution"
+    description = "Generate a stripped down Autojar'd executable jar"
+
+    mainClass = "com.github.blacklocus.rdsecho.Echo"
+    manifest = defaultManifest()
+
+    autojarFiles = [
+            "com/amazonaws/sdk/versionInfo.properties",
+            "com/amazonaws/regions/regions.xml",
+            "awssdk_config_default.json",
+            "logback.xml"]
+
+    prepareJodaTimezones.outputs.files.each {
+        fileTree(it).visit {
+            if(!it.isDirectory()) {
+                autojarFiles.add(it.relativePath)
+            }
+        }
+    }
+
+    autojarClasses = [
+            "org.slf4j.MDC",
+            "org.slf4j.impl.StaticMDCBinder",
+            "org.apache.commons.logging.impl.SimpleLog",
+            "org.apache.commons.logging.impl.LogFactoryImpl",
+            "com.amazonaws.internal.config.HttpClientConfigJsonHelper",
+            "com.amazonaws.internal.config.HostRegexToRegionMappingJsonHelper"]
+}
+
+task cliDistAutojar(dependsOn: cliAutojar) {
+    group = "Distribution"
+    description = "Create a distributable standalone executable binary"
+
+    ext.bashFile = file('src/main/bash/rdsecho.bash')
+    ext.jarFile = cliAutojar.outputs.files.singleFile
     ext.cliFile = file('build/libs/rds-echo')
     inputs.files bashFile, jarFile
     outputs.file cliFile
