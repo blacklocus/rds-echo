@@ -20,7 +20,7 @@ public class EchoUtil {
 
     final RdsFind rdsFind = new RdsFind();
 
-    final EchoCfg cfg = new EchoCfg();
+    final EchoCfg cfg = EchoCfg.getInstance();
 
     public String getTagEchoManaged() {
         return String.format(EchoConst.TAG_ECHO_MANAGED_FMT, cfg.name());

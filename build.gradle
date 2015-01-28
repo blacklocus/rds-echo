@@ -98,11 +98,9 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.github.rholder:gradle-one-jar:1.0.4'
         classpath 'com.github.rholder:gradle-autojar:1.0.1'
     }
 }
-apply plugin: 'gradle-one-jar'
 apply plugin: 'gradle-autojar'
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -216,31 +214,6 @@ idea {
 
 def findJar(prefix) {
     return configurations.compile.filter { it.name.startsWith(prefix) }
-}
-
-task cliJar(type: OneJar) {
-    mainClass = 'com.github.blacklocus.rdsecho.Echo'
-    archiveName = 'rds-echo.jar'
-    additionalDir = file('src/main/onejar')
-}
-
-task cliDist(dependsOn: cliJar) {
-    ext.bashFile = file('src/main/bash/rdsecho.bash')
-    ext.jarFile = file('build/libs/rds-echo.jar')
-    ext.cliFile = file('build/libs/rds-echo')
-    inputs.files bashFile, jarFile
-    outputs.file cliFile
-
-    doLast {
-        cliFile.createNewFile()
-        cliFile.setExecutable(true, false)
-        def fileOutputStream = new FileOutputStream(cliFile, true)
-        fileOutputStream.withCloseable {
-            Files.copy(bashFile, fileOutputStream)
-            Files.copy(jarFile, fileOutputStream)
-            fileOutputStream.flush()
-        }
-    }
 }
 
 task prepareJodaTimezones(type: Copy) {

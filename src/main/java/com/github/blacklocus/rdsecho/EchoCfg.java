@@ -68,7 +68,7 @@ public class EchoCfg {
     };
     final CompositeConfiguration cfg;
 
-    public EchoCfg() {
+    private EchoCfg() {
         this.cfg = new CompositeConfiguration();
         this.cfg.addConfiguration(new SystemConfiguration());
         try {
@@ -179,5 +179,13 @@ public class EchoCfg {
 
     public Optional<String> retireFinalDbSnapshotIdentifier() {
         return Optional.fromNullable(cfg.getString(PROP_RETIRE_FINAL_DB_SNAPSHOT_IDENTIFIER));
+    }
+
+    public static final class Lazy {
+        static final EchoCfg INSTANCE = new EchoCfg();
+    }
+
+    public static EchoCfg getInstance() {
+        return Lazy.INSTANCE;
     }
 }

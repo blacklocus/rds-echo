@@ -22,7 +22,7 @@ public class EchoNew implements Callable<Boolean> {
 
     final AmazonRDS rds = new AmazonRDSClient();
 
-    final EchoCfg cfg = new EchoCfg();
+    final EchoCfg cfg = EchoCfg.getInstance();
     final EchoUtil echo = new EchoUtil();
 
     @Override
