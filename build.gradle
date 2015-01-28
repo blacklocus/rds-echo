@@ -4,7 +4,7 @@ import com.google.common.io.Files
 // Settings
 ext {
     project_group = 'com.github.blacklocus'
-    project_version = '0.0.1-SNAPSHOT'
+    project_version = '0.1.0-SNAPSHOT'
     project_jdk = '1.7'
     project_pom = {
         name 'rds-echo'
@@ -116,7 +116,6 @@ dependencies {
     compile 'commons-configuration:commons-configuration:1.10'
     compile 'org.bitbucket.cowwoc:preconditions:1.12'
     compile 'com.sun.jersey:jersey-core:1.18.3'
-    compile 'com.ibm.icu:icu4j:54.1.1'
     compile 'org.slf4j:slf4j-api:1.7.10'
     compile 'ch.qos.logback:logback-core:1.1.2'
     compile 'ch.qos.logback:logback-classic:1.1.2'
