@@ -30,7 +30,7 @@ $ ./rds-echo
 $ rds-echo <command>
 
 RDS Echo is configured by rdsecho.properties in the current working directory.
- Run 'rds-echo config' to get a starter template.
+Run 'rds-echo config' to get a starter template.
 
 Valid commands correspond to Echo stages:
 
