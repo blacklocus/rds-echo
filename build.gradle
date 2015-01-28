@@ -267,6 +267,7 @@ task cliAutojar(type: Autojar, dependsOn: prepareJodaTimezones) {
             "com/amazonaws/sdk/versionInfo.properties",
             "com/amazonaws/regions/regions.xml",
             "awssdk_config_default.json",
+            "rdsecho.properties.sample",
             "logback.xml"]
 
     prepareJodaTimezones.outputs.files.each {
