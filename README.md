@@ -103,7 +103,7 @@ Again, many parameters and repeatedly prone to human error.
 
 rds-echo is released under the terms of
 
-[The MIT License MIT](http://opensource.org/licenses/MIT)
+[The MIT License (MIT)](http://opensource.org/licenses/MIT)
 
 Copyright (c) 2015 BlackLocus
 
