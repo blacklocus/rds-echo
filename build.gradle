@@ -106,6 +106,16 @@ apply plugin: 'gradle-autojar'
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Dependencies
 
+configurations {
+    provided
+}
+
+sourceSets {
+    main {
+        runtimeClasspath += configurations.provided
+    }
+}
+
 repositories {
     mavenCentral()
 }
@@ -114,13 +124,14 @@ dependencies {
     compile 'com.amazonaws:aws-java-sdk-rds:1.9.16'
     compile 'com.amazonaws:aws-java-sdk-route53:1.9.16'
     compile 'commons-configuration:commons-configuration:1.10'
-    compile 'org.bitbucket.cowwoc:preconditions:1.12'
-    compile 'com.sun.jersey:jersey-core:1.18.3'
+    compile 'com.google.guava:guava:18.0'
     compile 'org.slf4j:slf4j-api:1.7.10'
-    compile 'ch.qos.logback:logback-core:1.1.2'
-    compile 'ch.qos.logback:logback-classic:1.1.2'
+    compile 'org.slf4j:slf4j-simple:1.7.10'
 
     testCompile 'org.testng:testng:6.8.17'
+    // Because can output line numbers
+    testCompile 'ch.qos.logback:logback-core:1.1.2'
+    testCompile 'ch.qos.logback:logback-classic:1.1.2'
 
 }
 
@@ -240,7 +251,7 @@ task cliAutojar(type: Autojar, dependsOn: prepareJodaTimezones) {
             "com/amazonaws/regions/regions.xml",
             "awssdk_config_default.json",
             "rdsecho.properties.sample",
-            "logback.xml"]
+            "simplelogger.properties"]
 
     prepareJodaTimezones.outputs.files.each {
         fileTree(it).visit {

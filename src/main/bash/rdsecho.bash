@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-exec java -jar "$0" "$@"
+exec java ${RDS_ECHO_OPTS} -jar "$0" "$@"
 

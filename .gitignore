@@ -8,5 +8,8 @@
 /.gradle/
 build/
 
+# OSX garbage
+.DS_Store
+
 # Application
 rdsecho.properties
