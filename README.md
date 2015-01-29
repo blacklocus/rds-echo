@@ -56,6 +56,10 @@ Valid commands correspond to Echo stages:
 See the README for more details at https://github.com/blacklocus/rds-echo
 ```
 
+You will need to set up AWS auth as per the
+[DefaultAWSCredentialProviderChain](http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/auth/DefaultAWSCredentialsProviderChain.html).
+
+
 ### The stages ###
 This is our story: On regular occasion, restore the latest production snapshot to a new development instance, promote
 that instance to replace its former self, and then destroy the old instance.
