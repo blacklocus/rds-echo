@@ -14,8 +14,6 @@ RDS Echo is a command line tool.
 
 Current stable release: [rds-echo v0.1.1](https://github.com/blacklocus/rds-echo/releases/tag/v0.1.1)
 
-Then make it executable: `chmod u+x rds-echo`
-
 e.g.
 ```bash
 sudo curl -o /usr/local/bin/rds-echo -L "https://github.com/blacklocus/rds-echo/releases/download/v0.1.1/rds-echo" && \
