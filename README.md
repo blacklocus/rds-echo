@@ -78,6 +78,8 @@ Each `rds-echo command` progresses an Echo-managed instance through these stages
 So in the straightforward case, each command is run in succession after the previous commands stabilize and leave the
 DB instance in the "available" state.
 
+All rds-echo state tracking metadata is stored as AWS resource tags on the RDS instance themselves
+
 
 
 ## Futures ##
