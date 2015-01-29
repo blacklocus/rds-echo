@@ -4,7 +4,7 @@ import com.google.common.io.Files
 // Settings
 ext {
     project_group = 'com.github.blacklocus'
-    project_version = '0.1.1-SNAPSHOT'
+    project_version = '0.1.1'
     project_jdk = '1.7'
     project_pom = {
         name 'rds-echo'
