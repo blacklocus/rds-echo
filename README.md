@@ -19,7 +19,7 @@ Then make it executable: `chmod u+x rds-echo`
 
 
 ## Use It ##
-Help is included in the command-line tool. You'll need to configure the tool. `rds-echo config` will drop a template
+Help is included in the command-line tool. You'll need to configure the tool. `rds-echo sample-props` will drop a template
 configuration file in the current directory. Edit this and fill in all the properties before attempting any further commands.
 
 ```
