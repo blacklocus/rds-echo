@@ -34,8 +34,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 
-public class EchoSampleCfg implements Callable<Boolean> {
-    private static final Logger LOG = LoggerFactory.getLogger(EchoSampleCfg.class);
+public class EchoSampleProps implements Callable<Boolean> {
+    private static final Logger LOG = LoggerFactory.getLogger(EchoSampleProps.class);
 
     @Override
     public Boolean call() throws Exception {

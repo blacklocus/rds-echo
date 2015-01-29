@@ -23,33 +23,34 @@ Help is included in the command-line tool. You'll need to configure the tool. `r
 configuration file in the current directory. Edit this and fill in all the properties before attempting any further commands.
 
 ```
-$ ./rds-echo
-
-22:31:03 ERROR: Expected exactly one argument.
-22:31:03 INFO : usage:
 $ rds-echo <command>
 
-RDS Echo is configured by rdsecho.properties in the current working directory.
-Run 'rds-echo config' to get a starter template.
+RDS Echo may be configured by rdsecho.properties in the current working directory,
+or exporting a fully-populated RDS_ECHO_OPTS environment variable.
+Run 'rds-echo sample-props' or 'rds-echo sample-opts' to get a configuration template.
 
 Valid commands correspond to Echo stages:
 
-  config  Drops an rdsecho.properties template into the current working directory, which must be
-          configured before any other RDS Echo command will function.
+  sample-opts   Prints a template RDS_ECHO_OPTS variable which must be fully configured and then
+                exported before any other RDS Echo command will function.
 
-  new     Creates a stage 'new' instance from a snapshot. This is usually the longest operation.
+  sample-props  Drops a template rdsecho.properties into the current working directory, which must
+                be fully configured before any other RDS Echo command will function.
 
-  modify  Modifies a stage 'new' instance with remaining settings that could not be applied on
-          create and advances stage to 'modified'.
+  new           Creates a stage 'new' instance from a snapshot. This is usually the longest
+                operation.
 
-  reboot  Reboots a stage 'modified' instance so that all settings may take full effect and
-          advances stage to 'rebooted'.
+  modify        Modifies a stage 'new' instance with remaining settings that could not be applied
+                on create and advances stage to 'modified'.
 
-  promote Promotes a stage 'rebooted' instance so that it becomes the active instance behind the
-          specified CNAME and advances stage to 'promoted'. Any previously 'promoted' instances
-          will be moved to stage 'forgotten'.
+  reboot        Reboots a stage 'modified' instance so that all settings may take full effect and
+                advances stage to 'rebooted'.
 
-  retire  Retires a stage 'forgotten' instance (destroys it) and advances stage to 'retired'.
+  promote       Promotes a stage 'rebooted' instance so that it becomes the active instance behind
+                the specified CNAME and advances stage to 'promoted'. Any previously 'promoted'
+                instances will be moved to stage 'forgotten'.
+
+  retire        Retires a stage 'forgotten' instance (destroys it) and advances stage to 'retired'.
 
 
 See the README for more details at https://github.com/blacklocus/rds-echo
@@ -59,7 +60,7 @@ See the README for more details at https://github.com/blacklocus/rds-echo
 This is our story: On regular occasion, restore the latest production snapshot to a new development instance, promote
 that instance to replace its former self, and then destroy the old instance.
 
-Less the first *config* command, RDS Echo fulfills this assuming story through a series of **stages**.
+Less the first configuration template command, RDS Echo fulfills this assuming story through a series of **stages**.
 Each `rds-echo command` progresses an Echo-managed instance through these stages:
 
   - (non-existent) --`rds-echo new`-->     **new**

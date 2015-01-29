@@ -41,9 +41,15 @@ public class Echo {
     private static final Logger LOG = LoggerFactory.getLogger(Echo.class);
 
     static final Map<String, CommandBundle> COMMANDS = ImmutableMap.<String, CommandBundle>builder()
-            .put("config", bundle(EchoSampleCfg.class,
-                    "Drops an rdsecho.properties template into the current working directory, which must be " +
-                            "configured before any other RDS Echo command will function."))
+            .put("sample-props", bundle(EchoSampleProps.class,
+                    "Drops a template rdsecho.properties into the current working directory, which must be " +
+                            "fully configured before any other RDS Echo command will function."))
+            .put("sample-opts", bundle(EchoSampleOpts.class,
+                    "Prints a template RDS_ECHO_OPTS variable to stdout which must be fully configured and then " +
+                            "exported before any other RDS Echo command will function. If a rdsecho.properties is " +
+                            "present in the current directory, OPTS property values will be populated with the file's " +
+                            "values. The stdout of this command can be piped to a file. Log messages are placed on " +
+                            "stderr and so will not be included in the output."))
             .put("new", bundle(EchoNew.class,
                     "Creates a stage '%s' instance from a snapshot. This is usually the longest operation.",
                     EchoConst.STAGE_NEW))
@@ -63,7 +69,7 @@ public class Echo {
             .build();
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 0) {
+        if (args.length == 0) {
             printUsage();
 
         } else if (args.length == 1) {
@@ -90,17 +96,21 @@ public class Echo {
                 .format("usage:%n")
                 .format("$ rds-echo <command>%n")
                 .format("%n")
-                .format("RDS Echo is configured by rdsecho.properties in the current working directory.%n")
-                .format("Run 'rds-echo config' to get a starter template.%n")
+                .format("RDS Echo may be configured by rdsecho.properties in the current working directory, %n")
+                .format("or exporting a fully-populated RDS_ECHO_OPTS environment variable.%n")
+                .format("Run 'rds-echo sample-props' or 'rds-echo sample-opts' to get a configuration template.%n")
+                .format("It is recommended to start with sample-props as that template includes documentation about%n")
+                .format("many of the parameters. This can then be converted to OPTS if desired through the%n")
+                .format("sample-opts command.%n")
                 .format("%n")
                 .format("Valid commands correspond to Echo stages:%n")
                 .format("%n");
 
         for (Map.Entry<String, CommandBundle> e : COMMANDS.entrySet()) {
-            List<String> descriptionLines = wrap(e.getValue().description, 90); // for a total of 100
-            p.format("  %-8s%s%n", e.getKey(), descriptionLines.get(0));
+            List<String> descriptionLines = wrap(e.getValue().description, 84); // for a total of 100
+            p.format("  %-14s%s%n", e.getKey(), descriptionLines.get(0));
             for (int i = 1; i < descriptionLines.size(); i++) {
-                p.format("  %-8s%s%n", "", descriptionLines.get(i));
+                p.format("  %-14s%s%n", "", descriptionLines.get(i));
             }
             p.format("%n");
         }
