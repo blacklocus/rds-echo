@@ -99,6 +99,7 @@ public class Echo {
                 .format("RDS Echo may be configured by rdsecho.properties in the current working directory, %n")
                 .format("or exporting a fully-populated RDS_ECHO_OPTS environment variable.%n")
                 .format("Run 'rds-echo sample-props' or 'rds-echo sample-opts' to get a configuration template.%n")
+                .format("%n")
                 .format("It is recommended to start with sample-props as that template includes documentation about%n")
                 .format("many of the parameters. This can then be converted to OPTS if desired through the%n")
                 .format("sample-opts command.%n")
