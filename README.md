@@ -1,5 +1,8 @@
 RDS Echo
 ========
+
+![Travis CI build status](https://travis-ci.org/blacklocus/rds-echo.svg?branch=master)
+
 A tool to simplify automated restore-from-snapshot operations in Amazon RDS.
 
 To get a snapshot into a usable state must happen in at least two distinct stages: the **initial restore request**, and
