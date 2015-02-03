@@ -15,11 +15,11 @@ instance. Finally, the old instance will be destroyed.
 ## Get It ##
 RDS Echo is a command line tool.
 
-Current stable release: [rds-echo v0.1.1](https://github.com/blacklocus/rds-echo/releases/tag/v0.1.1)
+Current stable release: [rds-echo v0.1.2](https://github.com/blacklocus/rds-echo/releases/tag/v0.1.2)
 
 e.g.
 ```bash
-sudo curl -o /usr/local/bin/rds-echo -L "https://github.com/blacklocus/rds-echo/releases/download/v0.1.1/rds-echo" && \
+sudo curl -o /usr/local/bin/rds-echo -L "https://github.com/blacklocus/rds-echo/releases/download/v0.1.2/rds-echo" && \
 sudo chmod +x /usr/local/bin/rds-echo
 ```
 
