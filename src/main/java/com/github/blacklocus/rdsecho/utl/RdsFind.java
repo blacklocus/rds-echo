@@ -161,7 +161,7 @@ public class RdsFind {
     public static Optional<DBSnapshot> newestSnapshot(Iterable<DBSnapshot> snapshots) {
         DBSnapshot newest = null;
         for (DBSnapshot snapshot : snapshots) {
-            if (newest == null || snapshot.getInstanceCreateTime().after(newest.getInstanceCreateTime())) {
+            if (newest == null || snapshot.getSnapshotCreateTime().after(newest.getSnapshotCreateTime())) {
                 newest = snapshot;
             }
         }
