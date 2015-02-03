@@ -1,7 +1,7 @@
 RDS Echo
 ========
 
-![Travis CI build status](https://travis-ci.org/blacklocus/rds-echo.svg?branch=master)
+[![Build Status](https://travis-ci.org/blacklocus/rds-echo.svg)](https://travis-ci.org/blacklocus/rds-echo)
 
 A tool to simplify automated restore-from-snapshot operations in Amazon RDS.
 
