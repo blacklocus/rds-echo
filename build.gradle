@@ -253,14 +253,6 @@ task cliAutojar(type: Autojar, dependsOn: prepareJodaTimezones) {
             "rdsecho.properties.sample",
             "simplelogger.properties"]
 
-    prepareJodaTimezones.outputs.files.each {
-        fileTree(it).visit {
-            if(!it.isDirectory()) {
-                autojarFiles.add(it.relativePath)
-            }
-        }
-    }
-
     autojarClasses = [
             "org.slf4j.MDC",
             "org.slf4j.impl.StaticMDCBinder",
@@ -268,6 +260,16 @@ task cliAutojar(type: Autojar, dependsOn: prepareJodaTimezones) {
             "org.apache.commons.logging.impl.LogFactoryImpl",
             "com.amazonaws.internal.config.HttpClientConfigJsonHelper",
             "com.amazonaws.internal.config.HostRegexToRegionMappingJsonHelper"]
+
+    doFirst {
+        prepareJodaTimezones.outputs.files.each {
+            fileTree(it).visit {
+                if(!it.isDirectory()) {
+                    autojarFiles.add(it.relativePath)
+                }
+            }
+        }
+    }
 }
 
 task cliDistAutojar(dependsOn: cliAutojar) {
