@@ -84,6 +84,7 @@ abstract class AbstractEchoIntermediateStage implements Callable<Boolean> {
                             "edit the instance's tags to set the required stage and run this modify operation again. " +
                             "Cannot continue as it is so exiting.",
                     tagEchoStage, instanceStage, tagEchoStage, requisiteStage);
+            return false;
         }
 
         // Looks like we found a good echo instance, but is it available to us.
