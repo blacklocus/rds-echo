@@ -249,6 +249,7 @@ task cliAutojar(type: Autojar, dependsOn: prepareJodaTimezones) {
     autojarFiles = [
             "com/amazonaws/sdk/versionInfo.properties",
             "com/amazonaws/regions/regions.xml",
+            "com/amazonaws/services/route53/request.handlers",
             "awssdk_config_default.json",
             "rdsecho.properties.sample",
             "simplelogger.properties"]
@@ -259,7 +260,8 @@ task cliAutojar(type: Autojar, dependsOn: prepareJodaTimezones) {
             "org.apache.commons.logging.impl.SimpleLog",
             "org.apache.commons.logging.impl.LogFactoryImpl",
             "com.amazonaws.internal.config.HttpClientConfigJsonHelper",
-            "com.amazonaws.internal.config.HostRegexToRegionMappingJsonHelper"]
+            "com.amazonaws.internal.config.HostRegexToRegionMappingJsonHelper",
+            "com.amazonaws.services.route53.internal.Route53IdRequestHandler"]
 
     doFirst {
         prepareJodaTimezones.outputs.files.each {
