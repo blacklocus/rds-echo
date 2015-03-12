@@ -65,6 +65,7 @@ public class EchoCfg {
     // Promote parameters are required
     public static final String PROP_PROMOTE_CNAME = PREFIX + "promote.cname";
     public static final String PROP_PROMOTE_TTL = PREFIX + "promote.ttl";
+    public static final String PROP_PROMOTE_TAGS = PREFIX + "promote.tags";
 
     // Retire parameters are optional and unspecified take on AWS defaults
     public static final String PROP_RETIRE_SKIP_FINAL_SNAPSHOT = PREFIX + "retire.skipFinalSnapshot";
@@ -91,15 +92,16 @@ public class EchoCfg {
     };
     final CompositeConfiguration cfg;
 
-    private EchoCfg() {
+    // package scoped for testing
+    EchoCfg(String propertiesFilename) {
         this.cfg = new CompositeConfiguration();
         this.cfg.addConfiguration(new SystemConfiguration());
         try {
-            this.cfg.addConfiguration(new PropertiesConfiguration(EchoConst.CONFIGURATION_PROPERTIES));
-            LOG.info("Reading configuration from {}", EchoConst.CONFIGURATION_PROPERTIES);
+            this.cfg.addConfiguration(new PropertiesConfiguration(propertiesFilename));
+            LOG.info("Reading configuration from {}", propertiesFilename);
 
         } catch (ConfigurationException e) {
-            LOG.info("{} will not be read because {}", EchoConst.CONFIGURATION_PROPERTIES, e.getMessage());
+            LOG.info("{} will not be read because {}", propertiesFilename, e.getMessage());
         }
         validate();
     }
@@ -196,6 +198,15 @@ public class EchoCfg {
         return cfg.getLong(PROP_PROMOTE_TTL);
     }
 
+    public Optional<String[]> promoteTags() {
+        String[] values = cfg.getStringArray(PROP_PROMOTE_TAGS);
+        if (values == null || values.length == 0) {
+            return Optional.absent();
+        } else {
+            return Optional.of(values);
+        }
+    }
+
     public Optional<Boolean> retireSkipFinalSnapshot() {
         return Optional.fromNullable(cfg.getBoolean(PROP_RETIRE_SKIP_FINAL_SNAPSHOT, null));
     }
@@ -205,7 +216,7 @@ public class EchoCfg {
     }
 
     public static final class Lazy {
-        static final EchoCfg INSTANCE = new EchoCfg();
+        static final EchoCfg INSTANCE = new EchoCfg(EchoConst.CONFIGURATION_PROPERTIES);
     }
 
     public static EchoCfg getInstance() {

@@ -30,12 +30,14 @@ import com.github.blacklocus.rdsecho.EchoCfg;
 import com.github.blacklocus.rdsecho.EchoConst;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 public class EchoUtil {
 
@@ -88,5 +90,16 @@ public class EchoUtil {
         } catch (IOException e) {
             throw new RuntimeException();
         }
+    }
+
+    public static List<Tag> parseTags(String[] rawTags) {
+        List<Tag> tags = Lists.newArrayList();
+        for(String rawTag : rawTags) {
+            String[] splitTag = rawTag.split("=", 2);
+            if(splitTag.length == 2) {
+                tags.add(new Tag().withKey(splitTag[0]).withValue(splitTag[1]));
+            }
+        }
+        return tags;
     }
 }
