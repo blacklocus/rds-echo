@@ -114,7 +114,7 @@ public class EchoPromote extends AbstractEchoIntermediateStage {
         if (promoteTags.isPresent()) {
             List<Tag> tags = EchoUtil.parseTags(promoteTags.get());
             if (tags.size() > 0) {
-                LOG.info("Applying tags: {}", Arrays.asList(tags));
+                LOG.info("Applying tags on promote: {}", Arrays.asList(tags));
                 AddTagsToResourceRequest tagsRequest = new AddTagsToResourceRequest()
                         .withResourceName(RdsFind.instanceArn(cfg.region(), cfg.accountNumber(),
                                 instance.getDBInstanceIdentifier()));

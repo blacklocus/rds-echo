@@ -55,6 +55,7 @@ public class EchoCfg {
     public static final String PROP_NEW_PORT = PREFIX + "new.port";
     public static final String PROP_NEW_OPTION_GROUP_NAME = PREFIX + "new.optionGroupName";
     public static final String PROP_NEW_AUTO_MINOR_VERSION_UPGRADE = PREFIX + "new.autoMinorVersionUpgrade";
+    public static final String PROP_NEW_TAGS = PREFIX + "new.tags";
 
     // Modify parameters are mostly optional
     public static final String PROP_MOD_DB_PARAMETER_GROUP_NAME = PREFIX + "mod.dbParameterGroupName";
@@ -168,6 +169,14 @@ public class EchoCfg {
         return cfg.getBoolean(PROP_NEW_AUTO_MINOR_VERSION_UPGRADE);
     }
 
+    public Optional<String[]> newTags() {
+        String[] values = cfg.getStringArray(PROP_NEW_TAGS);
+        if (values == null || values.length == 0) {
+            return Optional.absent();
+        } else {
+            return Optional.of(values);
+        }
+    }
 
     public Optional<String> modDbParameterGroupName() {
         return Optional.fromNullable(cfg.getString(PROP_MOD_DB_PARAMETER_GROUP_NAME));

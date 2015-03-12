@@ -26,17 +26,21 @@ package com.github.blacklocus.rdsecho;
 
 import com.amazonaws.services.rds.AmazonRDS;
 import com.amazonaws.services.rds.AmazonRDSClient;
+import com.amazonaws.services.rds.model.AddTagsToResourceRequest;
 import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.DBSnapshot;
 import com.amazonaws.services.rds.model.RestoreDBInstanceFromDBSnapshotRequest;
 import com.amazonaws.services.rds.model.Tag;
 import com.github.blacklocus.rdsecho.utl.EchoUtil;
+import com.github.blacklocus.rdsecho.utl.RdsFind;
 import com.google.common.base.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 public class EchoNew implements Callable<Boolean> {
@@ -145,7 +149,20 @@ public class EchoNew implements Callable<Boolean> {
                         new Tag().withKey(echo.getTagEchoManaged()).withValue("true"),
                         new Tag().withKey(echo.getTagEchoStage()).withValue(EchoConst.STAGE_NEW)
                 );
-        rds.restoreDBInstanceFromDBSnapshot(request);
+        DBInstance restoredInstance = rds.restoreDBInstanceFromDBSnapshot(request);
+
+        Optional<String[]> newTags = cfg.newTags();
+        if (newTags.isPresent()) {
+            List<Tag> tags = EchoUtil.parseTags(newTags.get());
+            if (tags.size() > 0) {
+                LOG.info("Applying tags on create new: {}", Arrays.asList(tags));
+                AddTagsToResourceRequest tagsRequest = new AddTagsToResourceRequest()
+                        .withResourceName(RdsFind.instanceArn(cfg.region(), cfg.accountNumber(),
+                                restoredInstance.getDBInstanceIdentifier()));
+                tagsRequest.setTags(tags);
+                rds.addTagsToResource(tagsRequest);
+            }
+        }
 
         LOG.info("Created new DB instance. \n" +
                         "  https://console.aws.amazon.com/rds/home?region={}#dbinstance:id={}\n" +

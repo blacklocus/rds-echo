@@ -39,7 +39,7 @@ rdsecho.new.iops=0
 rdsecho.new.port=3306
 rdsecho.new.optionGroupName=default:mysql-5-6
 rdsecho.new.autoMinorVersionUpgrade=true
-
+rdsecho.new.tags=orange=false,pear=maybe
 
 
 # Modify instance API parameters
