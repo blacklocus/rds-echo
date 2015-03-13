@@ -23,8 +23,10 @@
  */
 package com.github.blacklocus.rdsecho;
 
+import com.amazonaws.services.rds.model.AddTagsToResourceRequest;
 import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.Endpoint;
+import com.amazonaws.services.rds.model.Tag;
 import com.amazonaws.services.route53.AmazonRoute53;
 import com.amazonaws.services.route53.AmazonRoute53Client;
 import com.amazonaws.services.route53.model.Change;
@@ -36,9 +38,14 @@ import com.amazonaws.services.route53.model.RRType;
 import com.amazonaws.services.route53.model.ResourceRecord;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
 import com.github.blacklocus.rdsecho.utl.EchoUtil;
+import com.github.blacklocus.rdsecho.utl.RdsFind;
 import com.github.blacklocus.rdsecho.utl.Route53Find;
+import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static com.github.blacklocus.rdsecho.utl.Route53Find.cnameEquals;
 import static com.github.blacklocus.rdsecho.utl.Route53Find.nameEquals;
@@ -103,8 +110,20 @@ public class EchoPromote extends AbstractEchoIntermediateStage {
                                 .withTTL(cfg.promoteTtl()))));
         route53.changeResourceRecordSets(request);
 
-        LOG.info("Searching for any existing promoted instance to demote.");
+        Optional<String[]> promoteTags = cfg.promoteTags();
+        if (promoteTags.isPresent()) {
+            List<Tag> tags = EchoUtil.parseTags(promoteTags.get());
+            if (tags.size() > 0) {
+                LOG.info("Applying tags on promote: {}", Arrays.asList(tags));
+                AddTagsToResourceRequest tagsRequest = new AddTagsToResourceRequest()
+                        .withResourceName(RdsFind.instanceArn(cfg.region(), cfg.accountNumber(),
+                                instance.getDBInstanceIdentifier()));
+                tagsRequest.setTags(tags);
+                rds.addTagsToResource(tagsRequest);
+            }
+        }
 
+        LOG.info("Searching for any existing promoted instance to demote.");
 
         return true;
     }

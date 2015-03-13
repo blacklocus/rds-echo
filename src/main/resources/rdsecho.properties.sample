@@ -39,7 +39,7 @@ rdsecho.new.iops=0
 rdsecho.new.port=3306
 rdsecho.new.optionGroupName=default:mysql-5-6
 rdsecho.new.autoMinorVersionUpgrade=true
-
+rdsecho.new.tags=orange=false,pear=maybe
 
 
 # Modify instance API parameters
@@ -58,7 +58,8 @@ rdsecho.mod.applyImmediately=true
 # fashion of DNS records.
 rdsecho.promote.cname=dev.domain.com.
 rdsecho.promote.ttl=300
-
+# Apply one or more tags to the instance once it has been promoted
+rdsecho.promote.tags=development=yes,banana=no
 
 
 # Retirement
