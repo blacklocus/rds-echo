@@ -80,7 +80,7 @@ public class RdsFind {
     public Iterable<Tag> instanceTags(String instanceArn, Predicate<Tag> predicate) {
         ListTagsForResourceResult result = rds.listTagsForResource(new ListTagsForResourceRequest()
                 .withResourceName(instanceArn));
-        return result.getTagList();
+        return Iterables.filter(result.getTagList(), predicate);
     }
 
     public Iterable<DBSnapshot> snapshots(final String dbInstanceIdentifier, final Predicate<DBSnapshot> predicate) {
