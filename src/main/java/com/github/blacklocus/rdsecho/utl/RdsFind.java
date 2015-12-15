@@ -23,6 +23,7 @@
  */
 package com.github.blacklocus.rdsecho.utl;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.rds.AmazonRDS;
 import com.amazonaws.services.rds.AmazonRDSClient;
 import com.amazonaws.services.rds.model.DBInstance;
@@ -34,17 +35,31 @@ import com.amazonaws.services.rds.model.DescribeDBSnapshotsResult;
 import com.amazonaws.services.rds.model.ListTagsForResourceRequest;
 import com.amazonaws.services.rds.model.ListTagsForResourceResult;
 import com.amazonaws.services.rds.model.Tag;
+import com.github.rholder.retry.Retryer;
+import com.github.rholder.retry.RetryerBuilder;
+import com.github.rholder.retry.StopStrategies;
+import com.github.rholder.retry.WaitStrategies;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 
 import java.util.Collections;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 
 public class RdsFind {
 
     final AmazonRDS rds = new AmazonRDSClient();
+
+    // Retry 10 times with exponential backoff, starting with 1 second bounded to 60 seconds
+    final Retryer<ListTagsForResourceResult> tagRetryer = RetryerBuilder.<ListTagsForResourceResult>newBuilder()
+            .retryIfExceptionOfType(AmazonServiceException.class)
+            .retryIfRuntimeException()
+            .withStopStrategy(StopStrategies.stopAfterAttempt(10))
+            .withWaitStrategy(WaitStrategies.exponentialWait(1, 60, TimeUnit.SECONDS))
+            .build();
 
     public Optional<DBInstance> instance(Predicate<DBInstance> predicate) {
         return Optional.fromNullable(Iterables.getFirst(instances(predicate), null));
@@ -112,16 +127,25 @@ public class RdsFind {
         return new Predicate<DBInstance>() {
             @Override
             public boolean apply(DBInstance instance) {
-                String rdsInstanceArn = instanceArn(region, accountNumber, instance.getDBInstanceIdentifier());
-                ListTagsForResourceResult result = rds.listTagsForResource(new ListTagsForResourceRequest()
-                        .withResourceName(rdsInstanceArn));
+                try {
+                    final String rdsInstanceArn = instanceArn(region, accountNumber, instance.getDBInstanceIdentifier());
+                    ListTagsForResourceResult result = tagRetryer.call(new Callable<ListTagsForResourceResult>() {
+                        @Override
+                        public ListTagsForResourceResult call() throws Exception {
+                            return rds.listTagsForResource(new ListTagsForResourceRequest()
+                                    .withResourceName(rdsInstanceArn));
+                        }
+                    });
 
-                return Iterables.any(result.getTagList(), new Predicate<Tag>() {
-                    @Override
-                    public boolean apply(Tag tag) {
-                        return tagKey.equals(tag.getKey()) && tagValue.equals(tag.getValue());
-                    }
-                });
+                    return Iterables.any(result.getTagList(), new Predicate<Tag>() {
+                        @Override
+                        public boolean apply(Tag tag) {
+                            return tagKey.equals(tag.getKey()) && tagValue.equals(tag.getValue());
+                        }
+                    });
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         };
     }
