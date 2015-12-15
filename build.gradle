@@ -127,6 +127,7 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
     compile 'org.slf4j:slf4j-api:1.7.10'
     compile 'org.slf4j:slf4j-simple:1.7.10'
+    compile 'com.github.rholder:guava-retrying:2.0.0'
 
     testCompile 'org.testng:testng:6.8.17'
     // Because can output line numbers
