@@ -44,6 +44,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -174,7 +175,16 @@ public class RdsFind {
 
     public static Optional<DBInstance> newestInstance(Iterable<DBInstance> instances) {
         DBInstance newest = null;
-        for (DBInstance instance : instances) {
+
+        // filter out instances without a create time
+        Iterable<DBInstance> validInstances = Iterables.filter(instances, new Predicate<DBInstance>() {
+            @Override
+            public boolean apply(@Nullable DBInstance input) {
+                return input != null && input.getInstanceCreateTime() != null;
+            }
+        });
+
+        for (DBInstance instance : validInstances) {
             if (newest == null || instance.getInstanceCreateTime().after(newest.getInstanceCreateTime())) {
                 newest = instance;
             }
@@ -184,7 +194,16 @@ public class RdsFind {
 
     public static Optional<DBSnapshot> newestSnapshot(Iterable<DBSnapshot> snapshots) {
         DBSnapshot newest = null;
-        for (DBSnapshot snapshot : snapshots) {
+
+        // filter out instances without a create time
+        Iterable<DBSnapshot> validSnapshots = Iterables.filter(snapshots, new Predicate<DBSnapshot>() {
+            @Override
+            public boolean apply(@Nullable DBSnapshot input) {
+                return input != null && input.getInstanceCreateTime() != null;
+            }
+        });
+
+        for (DBSnapshot snapshot : validSnapshots) {
             if (newest == null || snapshot.getSnapshotCreateTime().after(newest.getSnapshotCreateTime())) {
                 newest = snapshot;
             }
