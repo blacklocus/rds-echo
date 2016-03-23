@@ -34,14 +34,15 @@ import com.amazonaws.services.rds.model.Tag;
 import com.github.blacklocus.rdsecho.utl.EchoUtil;
 import com.github.blacklocus.rdsecho.utl.RdsFind;
 import com.google.common.base.Optional;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Callable;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Callable;
+import static com.github.blacklocus.rdsecho.EchoConst.COMMAND_NEW;
 
 public class EchoNew implements Callable<Boolean> {
 
@@ -59,36 +60,36 @@ public class EchoNew implements Callable<Boolean> {
 
         String tagEchoManaged = echo.getTagEchoManaged();
 
-        LOG.info("Checking to see if current echo-created instance (tagged {}) was created less than 24 hours ago. " +
-                "If so this operation will not continue.", tagEchoManaged);
+        LOG.info("[{}] Checking to see if current echo-created instance (tagged {}) was created less than 24 hours ago. " +
+                "If so this operation will not continue.", COMMAND_NEW, tagEchoManaged);
         Optional<DBInstance> newestInstanceOpt = echo.lastEchoInstance();
         if (newestInstanceOpt.isPresent()) {
 
             if (new DateTime(newestInstanceOpt.get().getInstanceCreateTime()).plusHours(24).isAfter(DateTime.now())) {
-                LOG.info("  Last echo-created RDS instance {} was created less than 24 hours ago. Aborting.",
-                        tagEchoManaged);
+                LOG.info("[{}] Last echo-created RDS instance {} was created less than 24 hours ago. Aborting.",
+                        COMMAND_NEW, tagEchoManaged);
                 return false;
 
             } else {
-                LOG.info("  Last echo-created RDS instance {} was created more than 24 hours ago. Proceeding.",
-                        tagEchoManaged);
+                LOG.info("[{}] Last echo-created RDS instance {} was created more than 24 hours ago. Proceeding.",
+                        COMMAND_NEW, tagEchoManaged);
             }
 
         } else {
-            LOG.info("  No prior echo-created instance found with tag {}. Proceeding.", tagEchoManaged);
+            LOG.info("[{}] No prior echo-created instance found with tag {}. Proceeding.", COMMAND_NEW, tagEchoManaged);
         }
 
         // Locate a suitable snapshot to be the basis of the new instance
 
-        LOG.info("Locating latest snapshot from {}", cfg.snapshotDbInstanceIdentifier());
+        LOG.info("[{}] Locating latest snapshot from {}", COMMAND_NEW, cfg.snapshotDbInstanceIdentifier());
         Optional<DBSnapshot> dbSnapshotOpt = echo.latestSnapshot();
         if (dbSnapshotOpt.isPresent()) {
             DBSnapshot snapshot = dbSnapshotOpt.get();
-            LOG.info("  Located snapshot {} completed on {}", snapshot.getDBSnapshotIdentifier(),
+            LOG.info("[{}] Located snapshot {} completed on {}", COMMAND_NEW, snapshot.getDBSnapshotIdentifier(),
                     new DateTime(snapshot.getSnapshotCreateTime()).toDateTimeISO().toString());
 
         } else {
-            LOG.info("  Could not locate a suitable snapshot. Cannot continue.");
+            LOG.info("[{}] Could not locate a suitable snapshot. Cannot continue.", COMMAND_NEW);
             return false;
         }
 
@@ -96,7 +97,7 @@ public class EchoNew implements Callable<Boolean> {
 
         String dbSnapshotIdentifier = dbSnapshotOpt.get().getDBSnapshotIdentifier();
         String newDbInstanceIdentifier = cfg.name() + '-' + DateTime.now(DateTimeZone.UTC).toString("yyyy-MM-dd");
-        LOG.info("Proposed new db instance...\n" +
+        LOG.info("[{}] Proposed new db instance...\n" +
                         "  engine           : {}\n" +
                         "  license model    : {}\n" +
                         "  db instance class: {}\n" +
@@ -108,6 +109,7 @@ public class EchoNew implements Callable<Boolean> {
                         "  port             : {}\n" +
                         "  option group name: {}\n" +
                         "  auto minor ver up: {}",
+                COMMAND_NEW,
                 cfg.newEngine(),
                 cfg.newLicenseModel(),
                 cfg.newDbInstanceClass(),
@@ -132,7 +134,7 @@ public class EchoNew implements Callable<Boolean> {
 
         // Create the new database
 
-        LOG.info("Creating new DB instance. Hold on to your butts.");
+        LOG.info("[{}] Creating new DB instance. Hold on to your butts.", COMMAND_NEW);
         RestoreDBInstanceFromDBSnapshotRequest request = new RestoreDBInstanceFromDBSnapshotRequest()
                 .withEngine(cfg.newEngine())
                 .withLicenseModel(cfg.newLicenseModel())
@@ -155,7 +157,7 @@ public class EchoNew implements Callable<Boolean> {
         if (newTags.isPresent()) {
             List<Tag> tags = EchoUtil.parseTags(newTags.get());
             if (tags.size() > 0) {
-                LOG.info("Applying tags on create new: {}", Arrays.asList(tags));
+                LOG.info("[{}] Applying tags on create new: {}", COMMAND_NEW, Arrays.asList(tags));
                 AddTagsToResourceRequest tagsRequest = new AddTagsToResourceRequest()
                         .withResourceName(RdsFind.instanceArn(cfg.region(), cfg.accountNumber(),
                                 restoredInstance.getDBInstanceIdentifier()));
@@ -164,10 +166,9 @@ public class EchoNew implements Callable<Boolean> {
             }
         }
 
-        LOG.info("Created new DB instance. \n" +
-                        "  https://console.aws.amazon.com/rds/home?region={}#dbinstance:id={}\n" +
-                        "Additional preparation of the instance will continue once the instance becomes available.",
-                cfg.region(), newDbInstanceIdentifier);
+        LOG.info("[{}] Kicked off new DB instance creation. All done here. Check on your instance progress at\n" +
+                        "  https://console.aws.amazon.com/rds/home?region={}#dbinstance:id={}",
+                COMMAND_NEW, cfg.region(), newDbInstanceIdentifier);
 
         return true;
     }

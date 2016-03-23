@@ -65,32 +65,32 @@ public class EchoPromote extends AbstractEchoIntermediateStage {
     @Override
     boolean traverseStage(DBInstance instance) {
 
-        LOG.info("Reading current DNS records");
+        LOG.info("[{}] Reading current DNS records", getCommand());
         String tld = EchoUtil.getTLD(cfg.promoteCname()) + '.';
         HostedZone hostedZone = route53Find.hostedZone(nameEquals(tld)).get();
-        LOG.info("  Found corresponding HostedZone. name: {} id: {}", hostedZone.getName(), hostedZone.getId());
+        LOG.info("[{}] Found corresponding HostedZone. name: {} id: {}", getCommand(), hostedZone.getName(), hostedZone.getId());
 
         ResourceRecordSet resourceRecordSet = route53Find.resourceRecordSet(
                 hostedZone.getId(), cnameEquals(cfg.promoteCname())).get();
         ResourceRecord resourceRecord = getOnlyElement(resourceRecordSet.getResourceRecords());
-        LOG.info("  Found CNAME {} with current value {}", resourceRecordSet.getName(), resourceRecord.getValue());
+        LOG.info("[{}] Found CNAME {} with current value {}", getCommand(), resourceRecordSet.getName(), resourceRecord.getValue());
 
         Endpoint endpoint = instance.getEndpoint();
         String tagEchoManaged = echo.getTagEchoManaged();
         String dbInstanceId = instance.getDBInstanceIdentifier();
         if (null == endpoint) {
-            LOG.info("Echo DB instance {} (id: {}) has no address. Is it still initializing?",
-                    tagEchoManaged, dbInstanceId);
+            LOG.info("[{}] Echo DB instance {} (id: {}) has no address. Is it still initializing?",
+                    getCommand(), tagEchoManaged, dbInstanceId);
             return false;
         }
         String instanceAddr = endpoint.getAddress();
         if (resourceRecord.getValue().equals(instanceAddr)) {
-            LOG.info("  Echo DB instance {} ({}) lines up with CNAME {}. Nothing to do.",
-                    tagEchoManaged, instanceAddr, resourceRecordSet.getName());
+            LOG.info("[{}] Echo DB instance {} ({}) lines up with CNAME {}. Nothing to do.",
+                    getCommand(), tagEchoManaged, instanceAddr, resourceRecordSet.getName());
             return false;
         } else {
-            LOG.info("  Echo DB instance {} ({}) differs from CNAME {}.",
-                    tagEchoManaged, instanceAddr, resourceRecordSet.getName());
+            LOG.info("[{}] Echo DB instance {} ({}) differs from CNAME {}.",
+                    getCommand(), tagEchoManaged, instanceAddr, resourceRecordSet.getName());
         }
 
         if (cfg.interactive()) {
@@ -101,7 +101,7 @@ public class EchoPromote extends AbstractEchoIntermediateStage {
             }
         }
 
-        LOG.info("Updating CNAME {} from {} to {}", cfg.name(), resourceRecord.getValue(), instanceAddr);
+        LOG.info("[{}] Updating CNAME {} from {} to {}", getCommand(), cfg.name(), resourceRecord.getValue(), instanceAddr);
         ChangeResourceRecordSetsRequest request = new ChangeResourceRecordSetsRequest()
                 .withHostedZoneId(hostedZone.getId())
                 .withChangeBatch(new ChangeBatch()
@@ -114,7 +114,7 @@ public class EchoPromote extends AbstractEchoIntermediateStage {
         if (promoteTags.isPresent()) {
             List<Tag> tags = EchoUtil.parseTags(promoteTags.get());
             if (tags.size() > 0) {
-                LOG.info("Applying tags on promote: {}", Arrays.asList(tags));
+                LOG.info("[{}] Applying tags on promote: {}", getCommand(), Arrays.asList(tags));
                 AddTagsToResourceRequest tagsRequest = new AddTagsToResourceRequest()
                         .withResourceName(RdsFind.instanceArn(cfg.region(), cfg.accountNumber(),
                                 instance.getDBInstanceIdentifier()));
@@ -123,9 +123,14 @@ public class EchoPromote extends AbstractEchoIntermediateStage {
             }
         }
 
-        LOG.info("Searching for any existing promoted instance to demote.");
+        LOG.info("[{}] Searching for any existing promoted instance to demote.", getCommand()); // TODO no it doesn't
 
         return true;
+    }
+
+    @Override
+    String getCommand() {
+        return EchoConst.COMMAND_PROMOTE;
     }
 
     public static void main(String[] args) throws Exception {
