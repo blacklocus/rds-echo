@@ -46,10 +46,11 @@ public class EchoModify extends AbstractEchoIntermediateStage {
     boolean traverseStage(DBInstance instance) {
 
         // Prepare request and build up informational message with conditional parts.
+        String dbInstanceId = instance.getDBInstanceIdentifier();
 
         StringWriter proposed = new StringWriter();
         PrintWriter printer = new PrintWriter(proposed);
-        printer.format("Proposed db modifications...%n");
+        printer.format("[%s] Proposed db modifications on instance %s...%n", getCommand(), dbInstanceId);
 
         ModifyDBInstanceRequest request = new ModifyDBInstanceRequest();
         request.withDBInstanceIdentifier(instance.getDBInstanceIdentifier());
@@ -79,7 +80,6 @@ public class EchoModify extends AbstractEchoIntermediateStage {
 
         if (cfg.interactive()) {
             String format = "Proceed to modify DB instance with these settings? Input %s to confirm.";
-            String dbInstanceId = instance.getDBInstanceIdentifier();
             if (!EchoUtil.prompt(dbInstanceId, format, dbInstanceId)) {
                 LOG.info("User declined to proceed. Exiting.");
                 return false;
@@ -88,13 +88,16 @@ public class EchoModify extends AbstractEchoIntermediateStage {
 
         // Do the deed
 
-        LOG.info("Modifying existing DB instance.");
+        LOG.info("[{}] Modifying existing DB instance {}", getCommand(), dbInstanceId);
         rds.modifyDBInstance(request);
-        LOG.info("Submitted instance modify request. The instance may need to be rebooted to receive the effect of " +
-                "certain settings. See AWS RDS documentation for details:\n" +
-                "http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.html#Overview.DBInstance.Modifying");
+        LOG.info("[{}] Submitted modify request on instance {}. Finished.", getCommand(), dbInstanceId);
 
         return true;
+    }
+
+    @Override
+    String getCommand() {
+        return EchoConst.COMMAND_MODIFY;
     }
 
     public static void main(String[] args) throws Exception {

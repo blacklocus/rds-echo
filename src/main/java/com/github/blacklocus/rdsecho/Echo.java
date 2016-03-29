@@ -24,9 +24,6 @@
 package com.github.blacklocus.rdsecho;
 
 import com.google.common.collect.ImmutableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -35,6 +32,20 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.github.blacklocus.rdsecho.EchoConst.COMMAND_MODIFY;
+import static com.github.blacklocus.rdsecho.EchoConst.COMMAND_NEW;
+import static com.github.blacklocus.rdsecho.EchoConst.COMMAND_PROMOTE;
+import static com.github.blacklocus.rdsecho.EchoConst.COMMAND_REBOOT;
+import static com.github.blacklocus.rdsecho.EchoConst.COMMAND_RETIRE;
+import static com.github.blacklocus.rdsecho.EchoConst.STAGE_FORGOTTEN;
+import static com.github.blacklocus.rdsecho.EchoConst.STAGE_MODIFIED;
+import static com.github.blacklocus.rdsecho.EchoConst.STAGE_NEW;
+import static com.github.blacklocus.rdsecho.EchoConst.STAGE_PROMOTED;
+import static com.github.blacklocus.rdsecho.EchoConst.STAGE_REBOOTED;
+import static com.github.blacklocus.rdsecho.EchoConst.STAGE_RETIRED;
 
 public class Echo {
 
@@ -50,22 +61,22 @@ public class Echo {
                             "present in the current directory, OPTS property values will be populated with the file's " +
                             "values. The stdout of this command can be piped to a file. Log messages are placed on " +
                             "stderr and so will not be included in the output."))
-            .put("new", bundle(EchoNew.class,
+            .put(COMMAND_NEW, bundle(EchoNew.class,
                     "Creates a stage '%s' instance from a snapshot. This is usually the longest operation.",
-                    EchoConst.STAGE_NEW))
-            .put("modify", bundle(EchoModify.class,
+                    STAGE_NEW))
+            .put(COMMAND_MODIFY, bundle(EchoModify.class,
                     "Modifies a stage '%s' instance with remaining settings that could not be applied on create and advances stage to '%s'.",
-                    EchoConst.STAGE_NEW, EchoConst.STAGE_MODIFIED))
-            .put("reboot", bundle(EchoReboot.class,
+                    STAGE_NEW, STAGE_MODIFIED))
+            .put(COMMAND_REBOOT, bundle(EchoReboot.class,
                     "Reboots a stage '%s' instance so that all settings may take full effect and advances stage to '%s'.",
-                    EchoConst.STAGE_MODIFIED, EchoConst.STAGE_REBOOTED))
-            .put("promote", bundle(EchoPromote.class,
+                    STAGE_MODIFIED, STAGE_REBOOTED))
+            .put(COMMAND_PROMOTE, bundle(EchoPromote.class,
                     "Promotes a stage '%s' instance so that it becomes the active instance behind the specified CNAME " +
                             "and advances stage to '%s'. Any previously '%s' instances will be moved to stage '%s'.",
-                    EchoConst.STAGE_REBOOTED, EchoConst.STAGE_PROMOTED, EchoConst.STAGE_PROMOTED, EchoConst.STAGE_FORGOTTEN))
-            .put("retire", bundle(EchoRetire.class,
+                    STAGE_REBOOTED, STAGE_PROMOTED, STAGE_PROMOTED, STAGE_FORGOTTEN))
+            .put(COMMAND_RETIRE, bundle(EchoRetire.class,
                     "Retires a stage '%s' instance (destroys it) and advances stage to '%s'.",
-                    EchoConst.STAGE_FORGOTTEN, EchoConst.STAGE_RETIRED))
+                    STAGE_FORGOTTEN, STAGE_RETIRED))
             .build();
 
     public static void main(String[] args) throws Exception {

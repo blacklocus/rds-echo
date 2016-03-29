@@ -41,7 +41,7 @@ public class EchoRetire extends AbstractEchoIntermediateStage {
     boolean traverseStage(DBInstance instance) {
 
         String dbInstanceId = instance.getDBInstanceIdentifier();
-        LOG.info("Propose to retire (destroy) instance {}", dbInstanceId);
+        LOG.info("[{}] Propose to retire (destroy) instance {}", getCommand(), dbInstanceId);
 
         if (cfg.interactive()) {
             String format = "Are you sure you want to retire this instance? Input %s to confirm.";
@@ -51,15 +51,20 @@ public class EchoRetire extends AbstractEchoIntermediateStage {
             }
         }
 
-        LOG.info("Retiring instance {}", dbInstanceId);
+        LOG.info("[{}] Retiring instance {}", getCommand(), dbInstanceId);
         DeleteDBInstanceRequest request = new DeleteDBInstanceRequest()
                 .withDBInstanceIdentifier(dbInstanceId)
                 .withSkipFinalSnapshot(cfg.retireSkipFinalSnapshot().orNull())
                 .withFinalDBSnapshotIdentifier(cfg.retireFinalDbSnapshotIdentifier().orNull());
         rds.deleteDBInstance(request);
-        LOG.info("So long {}", dbInstanceId);
+        LOG.info("[{}] So long {}", getCommand(), dbInstanceId);
 
         return true;
+    }
+
+    @Override
+    String getCommand() {
+        return EchoConst.COMMAND_RETIRE;
     }
 
     public static void main(String[] args) throws Exception {

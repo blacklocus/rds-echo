@@ -86,7 +86,7 @@ DB instance in the "available" state.
 
 All rds-echo state tracking metadata is stored as AWS resource tags on the RDS instance themselves
 
-
+For more information on when rebooting after modifying is necessary, see the [AWS documentation](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.html#Overview.DBInstance.Modifying).
 
 ## Futures ##
 

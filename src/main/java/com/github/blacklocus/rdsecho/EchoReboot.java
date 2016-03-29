@@ -49,11 +49,16 @@ public class EchoReboot extends AbstractEchoIntermediateStage {
             }
         }
 
-        LOG.info("Rebooting instance {}", dbInstanceId);
+        LOG.info("[{}] Rebooting instance {}", getCommand(), dbInstanceId);
         rds.rebootDBInstance(new RebootDBInstanceRequest()
                 .withDBInstanceIdentifier(dbInstanceId));
 
         return true;
+    }
+
+    @Override
+    String getCommand() {
+        return EchoConst.COMMAND_REBOOT;
     }
 
     public static void main(String[] args) throws Exception {
