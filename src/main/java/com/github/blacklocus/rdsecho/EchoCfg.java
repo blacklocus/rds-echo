@@ -102,7 +102,7 @@ public class EchoCfg {
             LOG.info("Reading configuration from {}", propertiesFilename);
 
         } catch (ConfigurationException e) {
-            LOG.info("{} will not be read because {}", propertiesFilename, e.getMessage());
+            LOG.info("{} file not found; reading configuration from VM properties directly", propertiesFilename);
         }
         validate();
     }
