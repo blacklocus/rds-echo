@@ -77,4 +77,30 @@ public class EchoConst {
      * being destroyed or will be soon.
      */
     public static final String STAGE_RETIRED = "retired";
+
+    /**
+     * The command to create a new instance. Sets stage as "new"
+     */
+    public static final String COMMAND_NEW = "new";
+
+    /**
+     * The command to modify an existing instance. Changes stage from "new" to "modified"
+     */
+    public static final String COMMAND_MODIFY = "modify";
+
+    /**
+     * The command to reboot an instance after it has been modified. Changes stage from "modified" to "rebooted"
+     */
+    public static final String COMMAND_REBOOT = "reboot";
+
+    /**
+     * The command to promote an instance that is ready for use. Changes stage from "rebooted" to "promoted".
+     * Changes previously promoted instance to "forgotten".
+     */
+    public static final String COMMAND_PROMOTE = "promote";
+
+    /**
+     * The command to retire an instance. Changes stage from "forgotten" to "retired" and then deletes it. Goodbye forever.
+     */
+    public static final String COMMAND_RETIRE = "retire";
 }

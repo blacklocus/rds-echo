@@ -60,44 +60,44 @@ abstract class AbstractEchoIntermediateStage implements Callable<Boolean> {
 
         String tagEchoManaged = echo.getTagEchoManaged();
         String tagEchoStage = echo.getTagEchoStage();
+        String command = this.getCommand();
 
-        LOG.info("Locating latest Echo managed instance (tagged with {}=true) in stage '{}' (tagged with {}={}).",
-                tagEchoManaged, requisiteStage, tagEchoStage, requisiteStage);
+        LOG.info("[{}] Locating latest Echo managed instance (tagged with {}=true)", command, tagEchoManaged);
         Optional<DBInstance> instanceOpt = echo.lastEchoInstance();
         if (!instanceOpt.isPresent()) {
-            LOG.error("  Unable to locate Echo-managed instance. Is there one? Aborting.", tagEchoManaged);
+            LOG.warn("[{}] Unable to locate Echo-managed instance. Is there one? Aborting.", command, tagEchoManaged);
             return false;
         }
 
         DBInstance instance = instanceOpt.get();
+
+        String dbInstanceId = instance.getDBInstanceIdentifier();
+        LOG.info("[{}] Located echo-managed instance with identifier {}", command, dbInstanceId);
+
         Optional<Tag> stageOpt = echo.instanceStage(instance.getDBInstanceIdentifier());
         if (!stageOpt.isPresent()) {
-            LOG.error("Unable to read Echo stage tag so cannot determine stage. To forcefully set the stage, edit " +
-                            "the instance's tags to add {}={} and run this modify operation again. " +
-                            "Cannot continue as it is so exiting.",
-                    tagEchoStage, requisiteStage);
+            LOG.error("[{}] Unable to read Echo stage tag on instance {}. Exiting.\n" +
+                            "(If the instance is supposed to be in stage {} but isn't, edit " +
+                            "the instance's tags to add {}={} and run this operation again.)",
+                    command, dbInstanceId, requisiteStage, tagEchoStage, requisiteStage);
             return false;
         }
         String instanceStage = stageOpt.get().getValue();
         if (!requisiteStage.equals(instanceStage)) {
-            LOG.error("Current Echo stage on instance is {}={} but needs to be {}={}. To forcefully set the stage, " +
-                            "edit the instance's tags to set the required stage and run this modify operation again. " +
-                            "Cannot continue as it is so exiting.",
-                    tagEchoStage, instanceStage, tagEchoStage, requisiteStage);
+            LOG.info("[{}] Instance {} has stage {} but this operation is looking for {}={}. Exiting.\n",
+                    command, dbInstanceId, instanceStage, tagEchoStage, requisiteStage);
             return false;
         }
 
-        // Looks like we found a good echo instance, but is it available to us.
+        // Looks like we found a good echo instance, but is it available to us?
 
-        String dbInstanceId = instance.getDBInstanceIdentifier();
-        LOG.info("  Located echo-managed instance with identifier {}", dbInstanceId);
         if (!"available".equals(instance.getDBInstanceStatus())) {
-            LOG.error("  Instance does not have status 'available' (saw {}) so aborting.",
-                    instance.getDBInstanceStatus());
+            LOG.info("[{}] Instance {} is in correct stage of {} but does not have status 'available' (saw {}) so aborting.",
+                    command, dbInstanceId, instanceStage, instance.getDBInstanceStatus());
             return false;
         }
 
-        // Do the part special to traversing the this stage
+        // Do the part special to traversing this stage
 
         if (traverseStage(instance)) {
 
@@ -117,4 +117,9 @@ abstract class AbstractEchoIntermediateStage implements Callable<Boolean> {
      * @param instance which guaranteed to be non-null, available, and on the requisite stage.
      */
     abstract boolean traverseStage(DBInstance instance);
+
+    /**
+     * @return the operation we are currently attempting to execute, passed in
+     */
+    abstract String getCommand();
 }
