@@ -34,6 +34,8 @@ import com.amazonaws.services.rds.model.Tag;
 import com.github.blacklocus.rdsecho.utl.EchoUtil;
 import com.github.blacklocus.rdsecho.utl.RdsFind;
 import com.google.common.base.Optional;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -96,29 +98,83 @@ public class EchoNew implements Callable<Boolean> {
 
         String dbSnapshotIdentifier = dbSnapshotOpt.get().getDBSnapshotIdentifier();
         String newDbInstanceIdentifier = cfg.name() + '-' + DateTime.now(DateTimeZone.UTC).toString("yyyy-MM-dd");
-        LOG.info("Proposed new db instance...\n" +
-                        "  engine           : {}\n" +
-                        "  license model    : {}\n" +
-                        "  db instance class: {}\n" +
-                        "  multi az         : {}\n" +
-                        "  storage type     : {}\n" +
-                        "  iops             : {}\n" +
-                        "  db snapshot id   : {}\n" +
-                        "  db instance id   : {}\n" +
-                        "  port             : {}\n" +
-                        "  option group name: {}\n" +
-                        "  auto minor ver up: {}",
-                cfg.newEngine(),
-                cfg.newLicenseModel(),
-                cfg.newDbInstanceClass(),
-                cfg.newMultiAz(),
-                cfg.newStorageType(),
-                cfg.newIops(),
-                dbSnapshotIdentifier,
-                newDbInstanceIdentifier,
-                cfg.newPort(),
-                cfg.newOptionGroupName(),
-                cfg.newAutoMinorVersionUpgrade());
+
+        // Prepare request and build up informational message with conditional parts.
+
+        StringWriter proposed = new StringWriter();
+        PrintWriter printer = new PrintWriter(proposed);
+        printer.format("Proposed new db instance...%n");
+        RestoreDBInstanceFromDBSnapshotRequest request = new RestoreDBInstanceFromDBSnapshotRequest();
+
+        // Required settings
+
+        request.withDBInstanceIdentifier(newDbInstanceIdentifier);
+        request.withDBSnapshotIdentifier(dbSnapshotIdentifier);
+        request.withTags(
+                new Tag().withKey(echo.getTagEchoManaged()).withValue("true"),
+                new Tag().withKey(echo.getTagEchoStage()).withValue(EchoConst.STAGE_NEW)
+        );
+
+        printer.format("  db snapshot id   : %s%n", dbSnapshotIdentifier);
+        printer.format("  db instance id   : %s%n", newDbInstanceIdentifier);
+
+        // Not required; these will default to snapshot settings
+
+        Optional<String> engineOpt = cfg.newEngine();
+        if (engineOpt.isPresent()) {
+            request.withEngine(engineOpt.get());
+            printer.format("  engine           : %s%n", engineOpt.get());
+        }
+
+        Optional<String> licenseModelOpt = cfg.newLicenseModel();
+        if (licenseModelOpt.isPresent()) {
+            request.withLicenseModel(licenseModelOpt.get());
+            printer.format("  license model    : %s%n", licenseModelOpt.get());
+        }
+
+        Optional<String> instanceClassOpt = cfg.newDbInstanceClass();
+        if (instanceClassOpt.isPresent()) {
+            request.withDBInstanceClass(instanceClassOpt.get());
+            printer.format("  db instance class: %s%n", instanceClassOpt.get());
+        }
+
+        Optional<Boolean> multiAzOpt = cfg.newMultiAz();
+        if (multiAzOpt.isPresent()) {
+            request.withMultiAZ(multiAzOpt.get());
+            printer.format("  multi az         : %s%n", multiAzOpt.get());
+        }
+
+        Optional<String> storageTypeOpt = cfg.newStorageType();
+        if (storageTypeOpt.isPresent()) {
+            request.withStorageType(storageTypeOpt.get());
+            printer.format("  storage type     : %s%n", storageTypeOpt.get());
+        }
+
+        Optional<Integer> iopsOpt = cfg.newIops();
+        if (iopsOpt.isPresent()) {
+            request.withIops(iopsOpt.get());
+            printer.format("  iops             : %s%n", iopsOpt.get());
+        }
+
+        Optional<Integer> portOpt = cfg.newPort();
+        if(portOpt.isPresent()) {
+            request.withPort(portOpt.get());
+            printer.format("  port             : %s%n", portOpt.get());
+        }
+
+        Optional<String> optionGroupNameOpt = cfg.newOptionGroupName();
+        if (optionGroupNameOpt.isPresent()) {
+            request.withOptionGroupName(optionGroupNameOpt.get());
+            printer.format("  option group name: %s%n", optionGroupNameOpt.get());
+        }
+
+        Optional<Boolean> autoMinorVersionOpt = cfg.newAutoMinorVersionUpgrade();
+        if (autoMinorVersionOpt.isPresent()) {
+            request.withAutoMinorVersionUpgrade(autoMinorVersionOpt.get());
+            printer.format("  auto minor ver up: %s%n", autoMinorVersionOpt.get());
+        }
+
+        LOG.info(proposed.toString());
 
         // Interactive user confirmation
 
@@ -133,22 +189,6 @@ public class EchoNew implements Callable<Boolean> {
         // Create the new database
 
         LOG.info("Creating new DB instance. Hold on to your butts.");
-        RestoreDBInstanceFromDBSnapshotRequest request = new RestoreDBInstanceFromDBSnapshotRequest()
-                .withEngine(cfg.newEngine())
-                .withLicenseModel(cfg.newLicenseModel())
-                .withDBInstanceClass(cfg.newDbInstanceClass())
-                .withMultiAZ(cfg.newMultiAz())
-                .withStorageType(cfg.newStorageType())
-                .withIops(cfg.newIops())
-                .withDBSnapshotIdentifier(dbSnapshotIdentifier)
-                .withDBInstanceIdentifier(newDbInstanceIdentifier)
-                .withPort(cfg.newPort())
-                .withOptionGroupName(cfg.newOptionGroupName())
-                .withAutoMinorVersionUpgrade(cfg.newAutoMinorVersionUpgrade())
-                .withTags(
-                        new Tag().withKey(echo.getTagEchoManaged()).withValue("true"),
-                        new Tag().withKey(echo.getTagEchoStage()).withValue(EchoConst.STAGE_NEW)
-                );
         DBInstance restoredInstance = rds.restoreDBInstanceFromDBSnapshot(request);
 
         Optional<String[]> newTags = cfg.newTags();

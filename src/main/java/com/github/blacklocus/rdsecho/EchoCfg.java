@@ -78,15 +78,6 @@ public class EchoCfg {
             PROP_REGION,
             PROP_ACCOUNT_NUMBER,
             PROP_SNAPSHOT_DB_INSTANCE_IDENTIFIER,
-            PROP_NEW_ENGINE,
-            PROP_NEW_LICENSE_MODEL,
-            PROP_NEW_DB_INSTANCE_CLASS,
-            PROP_NEW_MULTI_AZ,
-            PROP_NEW_STORAGE_TYPE,
-            PROP_NEW_IOPS,
-            PROP_NEW_PORT,
-            PROP_NEW_OPTION_GROUP_NAME,
-            PROP_NEW_AUTO_MINOR_VERSION_UPGRADE,
             PROP_MOD_APPLY_IMMEDIATELY,
             PROP_PROMOTE_CNAME,
             PROP_PROMOTE_TTL,
@@ -133,40 +124,40 @@ public class EchoCfg {
         return cfg.getString(PROP_SNAPSHOT_DB_INSTANCE_IDENTIFIER);
     }
 
-    public String newEngine() {
-        return cfg.getString(PROP_NEW_ENGINE);
+    public Optional<String> newEngine() {
+        return Optional.fromNullable(cfg.getString(PROP_NEW_ENGINE));
     }
 
-    public String newLicenseModel() {
-        return cfg.getString(PROP_NEW_LICENSE_MODEL);
+    public Optional<String> newLicenseModel() {
+        return Optional.fromNullable(cfg.getString(PROP_NEW_LICENSE_MODEL));
     }
 
-    public String newDbInstanceClass() {
-        return cfg.getString(PROP_NEW_DB_INSTANCE_CLASS);
+    public Optional<String> newDbInstanceClass() {
+        return Optional.fromNullable(cfg.getString(PROP_NEW_DB_INSTANCE_CLASS));
     }
 
-    public boolean newMultiAz() {
-        return cfg.getBoolean(PROP_NEW_MULTI_AZ);
+    public Optional<Boolean> newMultiAz() {
+        return Optional.fromNullable(cfg.getBoolean(PROP_NEW_MULTI_AZ, null));
     }
 
-    public String newStorageType() {
-        return cfg.getString(PROP_NEW_STORAGE_TYPE);
+    public Optional<String> newStorageType() {
+        return Optional.fromNullable(cfg.getString(PROP_NEW_STORAGE_TYPE));
     }
 
-    public int newIops() {
-        return cfg.getInt(PROP_NEW_IOPS);
+    public Optional<Integer> newIops() {
+        return Optional.fromNullable(cfg.getInteger(PROP_NEW_IOPS, null));
     }
 
-    public int newPort() {
-        return cfg.getInt(PROP_NEW_PORT);
+    public Optional<Integer> newPort() {
+        return Optional.fromNullable(cfg.getInteger(PROP_NEW_PORT, null));
     }
 
-    public String newOptionGroupName() {
-        return cfg.getString(PROP_NEW_OPTION_GROUP_NAME);
+    public Optional<String> newOptionGroupName() {
+        return Optional.fromNullable(cfg.getString(PROP_NEW_OPTION_GROUP_NAME));
     }
 
-    public boolean newAutoMinorVersionUpgrade() {
-        return cfg.getBoolean(PROP_NEW_AUTO_MINOR_VERSION_UPGRADE);
+    public Optional<Boolean> newAutoMinorVersionUpgrade() {
+        return Optional.fromNullable(cfg.getBoolean(PROP_NEW_AUTO_MINOR_VERSION_UPGRADE, null));
     }
 
     public Optional<String[]> newTags() {
