@@ -21,11 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.blacklocus.rdsecho;
+package com.github.blacklocus.rdsecho.cluster;
 
 import com.amazonaws.services.rds.model.DBInstance;
-import com.amazonaws.services.rds.model.ModifyDBInstanceRequest;
-import com.github.blacklocus.rdsecho.utl.EchoUtil;
+import com.amazonaws.services.rds.model.ModifyDBClusterRequest;
+import com.github.blacklocus.rdsecho.cluster.utl.EchoUtil;
 import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,28 +52,30 @@ public class EchoModify extends AbstractEchoIntermediateStage {
         PrintWriter printer = new PrintWriter(proposed);
         printer.format("[%s] Proposed db modifications on instance %s...%n", getCommand(), dbInstanceId);
 
-        ModifyDBInstanceRequest request = new ModifyDBInstanceRequest();
-        request.withDBInstanceIdentifier(instance.getDBInstanceIdentifier());
+        ModifyDBClusterRequest auroraRequest = new ModifyDBClusterRequest();
+
+        auroraRequest.withDBClusterIdentifier(instance.getDBClusterIdentifier());
 
         Optional<String> dbParameterGroupNameOpt = cfg.modDbParameterGroupName();
         if (dbParameterGroupNameOpt.isPresent()) {
-            request.withDBParameterGroupName(dbParameterGroupNameOpt.get());
+            auroraRequest.withDBClusterParameterGroupName(dbParameterGroupNameOpt.get());
             printer.format("  db param group name    : %s%n", dbParameterGroupNameOpt.get());
         }
         Optional<String[]> dbSecurityGroupsOpt = cfg.modDbSecurityGroups();
         if (dbSecurityGroupsOpt.isPresent()) {
-            request.withDBSecurityGroups(dbSecurityGroupsOpt.get());
-            printer.format("  db security groups     : %s%n", Arrays.asList(dbSecurityGroupsOpt.get()));
+            auroraRequest.withVpcSecurityGroupIds(dbSecurityGroupsOpt.get());
+            printer.format("  vpc security groups    : %s%n", Arrays.asList(dbSecurityGroupsOpt.get()));
         }
         Optional<Integer> backupRetentionPeriodOpt = cfg.modBackupRetentionPeriod();
         if (backupRetentionPeriodOpt.isPresent()) {
-            request.withBackupRetentionPeriod(backupRetentionPeriodOpt.get());
+            auroraRequest.withBackupRetentionPeriod(backupRetentionPeriodOpt.get());
             printer.format("  backup retention period: %d%n", backupRetentionPeriodOpt.get());
         }
         boolean applyImmediately = cfg.modApplyImmediately();
         printer.format("  apply immediately      : %b%n", applyImmediately);
-        request.withApplyImmediately(applyImmediately);
+        auroraRequest.withApplyImmediately(applyImmediately);
 
+//        auroraRequest.withOptionGroupName() // TODO
         LOG.info(proposed.toString());
 
         // Interactive user confirm
@@ -89,7 +91,7 @@ public class EchoModify extends AbstractEchoIntermediateStage {
         // Do the deed
 
         LOG.info("[{}] Modifying existing DB instance {}", getCommand(), dbInstanceId);
-        rds.modifyDBInstance(request);
+        rds.modifyDBCluster(auroraRequest);
         LOG.info("[{}] Submitted modify request on instance {}. Finished.", getCommand(), dbInstanceId);
 
         return true;

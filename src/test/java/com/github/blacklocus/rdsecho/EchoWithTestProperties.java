@@ -23,6 +23,12 @@
  */
 package com.github.blacklocus.rdsecho;
 
+import com.github.blacklocus.rdsecho.instance.EchoModify;
+import com.github.blacklocus.rdsecho.instance.EchoNew;
+import com.github.blacklocus.rdsecho.instance.EchoPromote;
+import com.github.blacklocus.rdsecho.instance.EchoReboot;
+import com.github.blacklocus.rdsecho.instance.EchoRetire;
+
 public class EchoWithTestProperties {
 
     public static class New {

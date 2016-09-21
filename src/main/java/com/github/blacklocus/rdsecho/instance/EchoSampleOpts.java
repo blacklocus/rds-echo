@@ -1,5 +1,6 @@
-package com.github.blacklocus.rdsecho;
+package com.github.blacklocus.rdsecho.instance;
 
+import com.github.blacklocus.rdsecho.EchoConst;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;

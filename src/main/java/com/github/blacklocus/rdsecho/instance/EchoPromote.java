@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.blacklocus.rdsecho;
+package com.github.blacklocus.rdsecho.instance;
 
 import com.amazonaws.services.rds.model.AddTagsToResourceRequest;
 import com.amazonaws.services.rds.model.DBInstance;
@@ -37,9 +37,10 @@ import com.amazonaws.services.route53.model.HostedZone;
 import com.amazonaws.services.route53.model.RRType;
 import com.amazonaws.services.route53.model.ResourceRecord;
 import com.amazonaws.services.route53.model.ResourceRecordSet;
-import com.github.blacklocus.rdsecho.utl.EchoUtil;
-import com.github.blacklocus.rdsecho.utl.RdsFind;
-import com.github.blacklocus.rdsecho.utl.Route53Find;
+import com.github.blacklocus.rdsecho.EchoConst;
+import com.github.blacklocus.rdsecho.instance.utl.EchoUtil;
+import com.github.blacklocus.rdsecho.instance.utl.RdsFind;
+import com.github.blacklocus.rdsecho.instance.utl.Route53Find;
 import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +48,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.github.blacklocus.rdsecho.utl.Route53Find.cnameEquals;
-import static com.github.blacklocus.rdsecho.utl.Route53Find.nameEquals;
+import static com.github.blacklocus.rdsecho.instance.utl.Route53Find.cnameEquals;
+import static com.github.blacklocus.rdsecho.instance.utl.Route53Find.nameEquals;
 import static com.google.common.collect.Iterables.getOnlyElement;
 
 public class EchoPromote extends AbstractEchoIntermediateStage {

@@ -1,4 +1,4 @@
-package com.github.blacklocus.rdsecho;
+package com.github.blacklocus.rdsecho.instance;
 
 import com.google.common.base.Optional;
 import org.testng.Assert;

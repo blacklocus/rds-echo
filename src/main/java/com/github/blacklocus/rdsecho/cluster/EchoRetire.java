@@ -21,47 +21,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.blacklocus.rdsecho;
+package com.github.blacklocus.rdsecho.cluster;
 
 import com.amazonaws.services.rds.model.DBInstance;
-import com.amazonaws.services.rds.model.RebootDBInstanceRequest;
-import com.github.blacklocus.rdsecho.utl.EchoUtil;
+import com.amazonaws.services.rds.model.DeleteDBInstanceRequest;
+import com.github.blacklocus.rdsecho.cluster.utl.EchoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EchoReboot extends AbstractEchoIntermediateStage {
+public class EchoRetire extends AbstractEchoIntermediateStage {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EchoReboot.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EchoRetire.class);
 
-    public EchoReboot() {
-        super(EchoConst.STAGE_MODIFIED, EchoConst.STAGE_REBOOTED);
+    public EchoRetire() {
+        super(EchoConst.STAGE_PROMOTED, EchoConst.STAGE_RETIRED);
     }
 
     @Override
     boolean traverseStage(DBInstance instance) {
 
         String dbInstanceId = instance.getDBInstanceIdentifier();
+        LOG.info("[{}] Propose to retire (destroy) instance {}", getCommand(), dbInstanceId);
+
         if (cfg.interactive()) {
-            if (!EchoUtil.prompt(dbInstanceId, "Are you sure you would like to reboot the instance? Input %s to confirm.",
-                    dbInstanceId)) {
+            String format = "Are you sure you want to retire this instance? Input %s to confirm.";
+            if (!EchoUtil.prompt(dbInstanceId, format, dbInstanceId)) {
                 LOG.info("User declined to proceed. Exiting.");
                 return false;
             }
         }
 
-        LOG.info("[{}] Rebooting instance {}", getCommand(), dbInstanceId);
-        rds.rebootDBInstance(new RebootDBInstanceRequest()
-                .withDBInstanceIdentifier(dbInstanceId));
+        LOG.info("[{}] Retiring instance {}", getCommand(), dbInstanceId);
+        DeleteDBInstanceRequest request = new DeleteDBInstanceRequest()
+                .withDBInstanceIdentifier(dbInstanceId)
+                .withSkipFinalSnapshot(cfg.retireSkipFinalSnapshot().orNull())
+                .withFinalDBSnapshotIdentifier(cfg.retireFinalDbSnapshotIdentifier().orNull());
+        rds.deleteDBInstance(request);
+        LOG.info("[{}] So long {}", getCommand(), dbInstanceId);
 
         return true;
     }
 
     @Override
     String getCommand() {
-        return EchoConst.COMMAND_REBOOT;
+        return EchoConst.COMMAND_RETIRE;
     }
 
     public static void main(String[] args) throws Exception {
-        new EchoReboot().call();
+        new EchoRetire().call();
     }
 }

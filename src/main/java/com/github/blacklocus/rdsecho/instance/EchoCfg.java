@@ -21,8 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.blacklocus.rdsecho;
+package com.github.blacklocus.rdsecho.instance;
 
+import com.github.blacklocus.rdsecho.EchoConst;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import org.apache.commons.configuration.CompositeConfiguration;

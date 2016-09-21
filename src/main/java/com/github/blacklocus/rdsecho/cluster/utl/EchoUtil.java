@@ -21,13 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.blacklocus.rdsecho.utl;
+package com.github.blacklocus.rdsecho.cluster.utl;
 
+import com.amazonaws.services.rds.model.DBClusterSnapshot;
 import com.amazonaws.services.rds.model.DBInstance;
-import com.amazonaws.services.rds.model.DBSnapshot;
 import com.amazonaws.services.rds.model.Tag;
-import com.github.blacklocus.rdsecho.EchoCfg;
 import com.github.blacklocus.rdsecho.EchoConst;
+import com.github.blacklocus.rdsecho.cluster.EchoCfg;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -72,8 +72,8 @@ public class EchoUtil {
                 RdsFind.tagName(getTagEchoStage()));
     }
 
-    public Optional<DBSnapshot> latestSnapshot() {
-        return RdsFind.newestSnapshot(rdsFind.snapshots(cfg.snapshotDbInstanceIdentifier(), RdsFind.snapshotIsAvailable()));
+    public Optional<DBClusterSnapshot> latestSnapshot(String snapshotIdentifier) {
+        return RdsFind.newestSnapshot(rdsFind.snapshots(snapshotIdentifier, RdsFind.snapshotIsAvailable()));
     }
 
     public static String getTLD(String domain) {

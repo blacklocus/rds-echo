@@ -21,17 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.blacklocus.rdsecho.utl;
+package com.github.blacklocus.rdsecho.cluster.utl;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.rds.AmazonRDS;
 import com.amazonaws.services.rds.AmazonRDSClient;
+import com.amazonaws.services.rds.model.DBClusterSnapshot;
 import com.amazonaws.services.rds.model.DBInstance;
-import com.amazonaws.services.rds.model.DBSnapshot;
+import com.amazonaws.services.rds.model.DescribeDBClusterSnapshotsRequest;
+import com.amazonaws.services.rds.model.DescribeDBClusterSnapshotsResult;
 import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
-import com.amazonaws.services.rds.model.DescribeDBSnapshotsRequest;
-import com.amazonaws.services.rds.model.DescribeDBSnapshotsResult;
 import com.amazonaws.services.rds.model.ListTagsForResourceRequest;
 import com.amazonaws.services.rds.model.ListTagsForResourceResult;
 import com.amazonaws.services.rds.model.Tag;
@@ -99,22 +99,22 @@ public class RdsFind {
         return Iterables.filter(result.getTagList(), predicate);
     }
 
-    public Iterable<DBSnapshot> snapshots(final String dbInstanceIdentifier, final Predicate<DBSnapshot> predicate) {
-        return new PagingIterable<DBSnapshot>(new Supplier<Iterable<DBSnapshot>>() {
+    public Iterable<DBClusterSnapshot> snapshots(final String dbInstanceIdentifier, final Predicate<DBClusterSnapshot> predicate) {
+        return new PagingIterable<>(new Supplier<Iterable<DBClusterSnapshot>>() {
 
             String marker = null;
             boolean isTruncated = true;
 
             @Override
-            public Iterable<DBSnapshot> get() {
+            public Iterable<DBClusterSnapshot> get() {
                 if (isTruncated) {
-                    DescribeDBSnapshotsRequest request = new DescribeDBSnapshotsRequest()
-                            .withDBInstanceIdentifier(dbInstanceIdentifier)
+                    DescribeDBClusterSnapshotsRequest request = new DescribeDBClusterSnapshotsRequest()
+                            .withDBClusterIdentifier(dbInstanceIdentifier)
                             .withMarker(marker);
-                    DescribeDBSnapshotsResult result = rds.describeDBSnapshots(request);
+                    DescribeDBClusterSnapshotsResult result = rds.describeDBClusterSnapshots(request);
                     marker = result.getMarker();
                     isTruncated = result.getMarker() != null;
-                    return Iterables.filter(result.getDBSnapshots(), predicate);
+                    return Iterables.filter(result.getDBClusterSnapshots(), predicate);
 
                 } else {
                     return Collections.emptyList();
@@ -155,10 +155,10 @@ public class RdsFind {
         return String.format("arn:aws:rds:%s:%s:db:%s", region, accountNumber, dbInstanceIdentifier);
     }
 
-    public static Predicate<DBSnapshot> snapshotIsAvailable() {
-        return new Predicate<DBSnapshot>() {
+    public static Predicate<DBClusterSnapshot> snapshotIsAvailable() {
+        return new Predicate<DBClusterSnapshot>() {
             @Override
-            public boolean apply(DBSnapshot snapshot) {
+            public boolean apply(DBClusterSnapshot snapshot) {
                 return "available".equals(snapshot.getStatus());
             }
         };
@@ -192,18 +192,18 @@ public class RdsFind {
         return Optional.fromNullable(newest);
     }
 
-    public static Optional<DBSnapshot> newestSnapshot(Iterable<DBSnapshot> snapshots) {
-        DBSnapshot newest = null;
+    public static Optional<DBClusterSnapshot> newestSnapshot(Iterable<DBClusterSnapshot> snapshots) {
+        DBClusterSnapshot newest = null;
 
         // filter out instances without a create time
-        Iterable<DBSnapshot> validSnapshots = Iterables.filter(snapshots, new Predicate<DBSnapshot>() {
+        Iterable<DBClusterSnapshot> validSnapshots = Iterables.filter(snapshots, new Predicate<DBClusterSnapshot>() {
             @Override
-            public boolean apply(@Nullable DBSnapshot input) {
-                return input != null && input.getInstanceCreateTime() != null;
+            public boolean apply(@Nullable DBClusterSnapshot input) {
+                return input != null && input.getSnapshotCreateTime() != null;
             }
         });
 
-        for (DBSnapshot snapshot : validSnapshots) {
+        for (DBClusterSnapshot snapshot : validSnapshots) {
             if (newest == null || snapshot.getSnapshotCreateTime().after(newest.getSnapshotCreateTime())) {
                 newest = snapshot;
             }

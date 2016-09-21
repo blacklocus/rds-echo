@@ -23,6 +23,13 @@
  */
 package com.github.blacklocus.rdsecho;
 
+import com.github.blacklocus.rdsecho.instance.EchoModify;
+import com.github.blacklocus.rdsecho.instance.EchoNew;
+import com.github.blacklocus.rdsecho.instance.EchoPromote;
+import com.github.blacklocus.rdsecho.instance.EchoReboot;
+import com.github.blacklocus.rdsecho.instance.EchoRetire;
+import com.github.blacklocus.rdsecho.instance.EchoSampleOpts;
+import com.github.blacklocus.rdsecho.instance.EchoSampleProps;
 import com.google.common.collect.ImmutableMap;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -48,6 +55,7 @@ import static com.github.blacklocus.rdsecho.EchoConst.STAGE_REBOOTED;
 import static com.github.blacklocus.rdsecho.EchoConst.STAGE_RETIRED;
 
 public class Echo {
+    // TODO this only goes to the instance package
 
     private static final Logger LOG = LoggerFactory.getLogger(Echo.class);
 

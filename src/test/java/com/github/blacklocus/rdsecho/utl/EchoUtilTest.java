@@ -1,6 +1,7 @@
 package com.github.blacklocus.rdsecho.utl;
 
 import com.amazonaws.services.rds.model.Tag;
+import com.github.blacklocus.rdsecho.instance.utl.EchoUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

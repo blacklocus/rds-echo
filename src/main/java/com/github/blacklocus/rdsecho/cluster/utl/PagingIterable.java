@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.blacklocus.rdsecho.utl;
+package com.github.blacklocus.rdsecho.cluster.utl;
 
 import com.google.common.base.Supplier;
 import org.apache.http.annotation.NotThreadSafe;

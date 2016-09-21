@@ -21,15 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.blacklocus.rdsecho;
+package com.github.blacklocus.rdsecho.cluster;
 
 import com.amazonaws.services.rds.AmazonRDS;
 import com.amazonaws.services.rds.AmazonRDSClient;
 import com.amazonaws.services.rds.model.AddTagsToResourceRequest;
 import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.Tag;
-import com.github.blacklocus.rdsecho.utl.EchoUtil;
-import com.github.blacklocus.rdsecho.utl.RdsFind;
+import com.github.blacklocus.rdsecho.cluster.utl.EchoUtil;
+import com.github.blacklocus.rdsecho.cluster.utl.RdsFind;
 import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

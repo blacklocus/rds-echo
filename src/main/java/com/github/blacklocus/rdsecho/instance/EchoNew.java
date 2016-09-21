@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.blacklocus.rdsecho;
+package com.github.blacklocus.rdsecho.instance;
 
 
 import com.amazonaws.services.rds.AmazonRDS;
@@ -31,8 +31,9 @@ import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.DBSnapshot;
 import com.amazonaws.services.rds.model.RestoreDBInstanceFromDBSnapshotRequest;
 import com.amazonaws.services.rds.model.Tag;
-import com.github.blacklocus.rdsecho.utl.EchoUtil;
-import com.github.blacklocus.rdsecho.utl.RdsFind;
+import com.github.blacklocus.rdsecho.EchoConst;
+import com.github.blacklocus.rdsecho.instance.utl.EchoUtil;
+import com.github.blacklocus.rdsecho.instance.utl.RdsFind;
 import com.google.common.base.Optional;
 import java.io.PrintWriter;
 import java.io.StringWriter;
